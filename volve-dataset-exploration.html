@@ -1,0 +1,382 @@
+
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Volve Dataset Exploration</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta name="author" content="Aaron Olson" />
+    <meta name="description" content="Begin to explore the various file and size of the Volve Dataset. Use blob connection via Azure Storage within Python to explore the available files saving the effort and need to download locally" />
+    <meta name="keywords" content="Azure, Python, Blob, Storage">
+<!-- Facebook and Twitter integration -->
+<meta property="og:site_name" content="From Bitumen to Binary"/>
+<meta property="og:title" content="Volve Dataset Exploration"/>
+<meta property="og:description" content="Begin to explore the various file and size of the Volve Dataset. Use blob connection via Azure Storage within Python to explore the available files saving the effort and need to download locally"/>
+<meta property="og:url" content="/volve-dataset-exploration.html"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2020-01-01 12:00:00-05:00"/>
+<meta property="article:modified_time" content=""/>
+<meta property="article:author" content="/author/aaron-olson.html">
+<meta property="article:section" content="posts"/>
+    <meta property="article:tag" content="Azure"/>
+    <meta property="article:tag" content="Python"/>
+    <meta property="article:tag" content="Blob"/>
+    <meta property="article:tag" content="Storage"/>
+    <meta property="og:image" content="//images/blog/volve.png">
+
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700" rel="stylesheet">
+
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="/theme/css/animate.css">
+    <!-- Icomoon Icon Fonts-->
+    <link rel="stylesheet" href="/theme/css/icomoon.css">
+    <!-- Bootstrap  -->
+    <link rel="stylesheet" href="/theme/css/bootstrap.css">
+    <!-- Flexslider  -->
+    <link rel="stylesheet" href="/theme/css/flexslider.css">
+    <!-- Theme style  -->
+    <link rel="stylesheet" href="/theme/css/style.css">
+    <!-- Custom style  -->
+    <link rel="stylesheet" href="/theme/css/custom.css">
+    <!-- pygments code highlight -->
+    <link rel="stylesheet" href="/theme/css/pygments.css">
+    <!-- tipue search -->
+    <link rel="stylesheet" href="/theme/tipuesearch/css/tipuesearch.css">
+
+    <!-- Modernizr JS -->
+    <script src="/theme/js/modernizr-2.6.2.min.js"></script>
+    <!-- FOR IE9 below -->
+    <!--[if lt IE 9]>
+    <script src="/theme/js/respond.min.js"></script>
+    <![endif]-->
+        <link href="/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="From Bitumen to Binary Atom">
+
+
+
+    </head>
+    <body>
+    <div id="fh5co-page">
+        <a href="#" class="js-fh5co-nav-toggle fh5co-nav-toggle"><i></i></a>
+        <aside id="fh5co-aside" role="complementary" class="border js-fullheight">
+
+            <nav class="fh5co-main-menu" role="navigation">
+            </nav>
+            <div class="clearfix"></div>
+            <h1  id="fh5co-logo">
+                <a href="/index.html">
+                    <img src="\images\Logo.JPG" />
+                </a>
+            </h1>
+            <nav class="fh5co-main-menu" role="navigation">
+<ul>
+    <!-- home link -->
+    <li><a href="/">Home</a></li>
+
+    <!-- page links -->
+            <li><a href="/pages/about.html">About</a></li>
+
+    <!-- categories -->
+        <li><a href="/categories.html">Categories</a></li>
+
+    <!-- tags -->
+        <li><a href="/tags.html">Tags</a></li>
+
+    <!-- additional menu items from config -->
+        <!-- <li class="nav-title">Misc</li> -->
+            <li><a href="/archives.html">Archive</a></li>
+            <li><a href="/contact.html">Contact</a></li>
+
+</ul>
+            </nav>
+
+<ul id="social">
+            <li><a href="https://github.com/ajolson89" alt="Github"><i class="icon-github"></i></a></li>
+
+            <li><a href="https://www.linkedin.com/in/aaron-j-olson/" alt="LinkedIn"><i class="icon-linkedin2"></i></a></li>
+
+</ul>
+        </aside>
+
+        <div id="fh5co-main">
+
+    <div class="fh5co-narrow-content article-content">
+        <h1 class="fh5co-heading-colored">Volve Dataset Exploration</h1>
+
+        <div>by
+                <a href="author/aaron-olson.html">Aaron Olson</a> - Wed 01 January 2020
+        </div>
+
+            <div><span>Tags: </span>
+                    <span><a href="/tag/azure.html">#Azure</a> </span>
+                    <span><a href="/tag/python.html">#Python</a> </span>
+                    <span><a href="/tag/blob.html">#Blob</a> </span>
+                    <span><a href="/tag/storage.html">#Storage</a> </span>
+            </div>
+
+        <div class="animate-box" data-animate-effect="fadeInLeft">
+            <p class="animate-box" data-animate-effect="fadeInLeft"><p>Equinor has recently released a significant amount of data pertaining to the Volve field and has made it <a href="https://www.equinor.com/en/news/14jun2018-disclosing-volve-data.html">publicly accessible</a>. The intent of the data release is to enable others to utilize data captured over the life of field development and production. Because of the intellectual property and privacy of most of oil and gas data - it is relatively uncommon to publicly release such a large and complete volume of oil and gas data. </p>
+<p>A little background on the Volve field. The field is located in the North Sea off the coast between Norway and the UK. It is owned and operated by Equinor (formerly Statoil) who has commissioned the release of the data. The Volve field was discovered in 1993 and approved to develop in 2005. The field saw active production between 2008 and 2016 from a total of 3 exploration wells and 21 developmental wells. Total production from the oil field was 63 million barrels of oil with a peak production rate of 56,000 bbd (barrels per day). </p>
+<p>In total the dataset is over 5TB and includes raw data (well logs, trajectory files, seismic, drilling mechanics, etc) as well as interpreted data (geophysical interpretation from seismic, Eclipse reservoir models). Equinor is using the Azure platform to host the data and has made the dataset available within a container for easy access. Oil and gas data is frequently contained in unique types of files - whether that is WITSML (an XML document with its own <a href="https://www.energistics.org/portfolio/witsml-data-standards/">standards</a>), LAS, DLIS, excel, PDF, CSV, etc - along with software specific files such as those showing Eclipse models - a software provided by Schlumberger and commonly used for seismic data. The difficulty in finding the maximum benefit of this data is mutlifaceted: 
+- Data using different and/or proprietary file formats makes it difficult to integrate into a 'data science' or easily ingestible and useable format
+- Amount of data. 5TB can rarely fit onto one hard drive let alone in memory. Large data routines (distributed computing) are becoming more and more prevalant and can help ingest and explore the data</p>
+<p>The objective of this blog will be to walk through different aspects of exploring the Volve dataset. First gaining access to the data and exploring the data contents. Next we will explore ingesting some of the unique file formats that are frequently used in the oil and gas industry (and used in the Volve dataset). From there we will explore the data, database development, etc in an effort to apply data science prinicpals and practices to the oil and gas industry. The hope and benefit will be to expose the utility of data science in the oil and gas industry and reduce the barrier to entry of ingesting and using the data. </p>
+<p>In order to access the data a user can: 
+- Go to this <a href="https://data.equinor.com/">link</a> and register using your name and email. Then download the files locally. This can certainly be a problem not only for the time it takes to download 5TB of data (frequently including timeout while downloading a large file causing the user to need to re-download) - but also the storage constraints in order to host that amount of data
+- Register using the link and then using AZ copy (an azure copy method) or Azure Storage Explorer (a local program) to manage the downloading of such a large file size
+- Directly access the data using azure connection tools - forgoing the need to locally host/download. This is the method we will explore in this notebook. Because it's possible to use the link to forgoe registration I will remove the actual link. Once registered the user can get the URI link as given on the <a href="data.equinor.com/dataset/volve">site</a> referenced to be utilized to connect via Azure Storage Explorer. In order to make use of the code given here replace the sas_token as the text in the link starting with 'sv='. </p>
+<p>Below we will connect to the container hosting the data and explore the dataset, including folder structure, file contents, etc. Future blog posts will begin to analyze some of the data and show how oil and gas data can be incorporated into a data science workflow to gain valuable insights - the intent of the data release!</p>
+<div class="highlight"><pre><span></span><span class="c1"># Import required libraries &amp; packages</span>
+<span class="c1"># from azure.kusto.data.request import KustoClient, KustoConnectionStringBuilder</span>
+<span class="c1"># from azure.kusto.data.exceptions import KustoServiceError</span>
+<span class="c1"># from azure.kusto.data.helpers import dataframe_from_result_table</span>
+<span class="kn">from</span> <span class="nn">azure.storage.blob</span> <span class="kn">import</span> <span class="n">BlockBlobService</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">xml.etree.ElementTree</span> <span class="k">as</span> <span class="nn">ET</span>
+<span class="kn">from</span> <span class="nn">bs4</span> <span class="kn">import</span> <span class="n">BeautifulSoup</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+<span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="o">%</span><span class="n">matplotlib</span> <span class="n">inline</span>
+</pre></div>
+
+
+<h3>Using Blob Service to Connect to SAS</h3>
+<p>The Volve dataset as previously mentioned is hosted on Azure. Equinor has made the data read accessible via a URI link. Using the URI link we can connect to the container and begin to explore the files contained within. Below we will connect to the container and explore the dataset. </p>
+<div class="highlight"><pre><span></span><span class="c1"># List the account name and sas_token *** I have removed the SAS token in order to allow the user to register properly thorugh Equinor&#39;s data portal</span>
+<span class="n">azure_storage_account_name</span> <span class="o">=</span> <span class="s1">&#39;dataplatformblvolve&#39;</span>
+<span class="n">sas_token</span> <span class="o">=</span> <span class="s1">&#39;sv=2018-03-28&amp;sr=c&amp;sig=LwIrnAVKe0</span><span class="si">%2F</span><span class="s1">PSSf6L9n6bAvdnCYQoBc1fSUpj1MxwTg%3D&amp;se=2020-01-23T11%3A56%3A25Z&amp;sp=rl&#39;</span>
+
+<span class="c1"># Create a service and use the SAS </span>
+<span class="n">sas_blob_service</span> <span class="o">=</span> <span class="n">BlockBlobService</span><span class="p">(</span> 
+    <span class="n">account_name</span><span class="o">=</span><span class="n">azure_storage_account_name</span><span class="p">,</span> 
+    <span class="n">sas_token</span><span class="o">=</span><span class="n">sas_token</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;WITSML Realtime drilling data/&#39;</span>
+
+<span class="n">blob</span> <span class="o">=</span> <span class="n">sas_blob_service</span><span class="o">.</span><span class="n">list_blobs</span><span class="p">(</span><span class="s1">&#39;pub&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+<span class="n">blob</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">&lt;azure.storage.common.models.ListGenerator at 0x7f47441001d0&gt;</span>
+</pre></div>
+
+
+<p>Above we used the URI link including the account name, container ('pub') and the sas token to access the account via SAS or shared access signature. This is a method a data owner can grant to users for a specified time period and allows read access only to the user. Other methods in order to access Azure Storage would use account keys and/or login information. Provided the SAS token we can connect to the Volve container and begin exploring. There are of course a number of methods and protocols to explore the dataset. On azure the list of methods that can be used to interact with blobs and containers can be found <a href="https://azure-storage.readthedocs.io/ref/azure.storage.blob.baseblobservice.html">here</a>. </p>
+<p>In the code above we have assigned the variable 'blob' a list generator which contains all of the files contained under the 'WITSML Realtime drilling data' folder. Depicted below is a picture of the folder structure as accessed via Azure Storage Explorer. We can see there are a number of folders each of which detail a specific type of drilling data (seismic, production, logs, reports, drilling mechanics): <p align="center">
+  <img width="1000" height="300" src="/images/AzureStorageExplorer.jpg">
+</p></p>
+<p>As printed in the first code cell - we can see that blob is a list generator - which has a different syntax than a python list. In order to access the elements of the data we have to loop through the generator. Below we will get the length of the list generator (number of files contained under all subdirectories in the WITSML Realtime drilling data folder) along with the sub-folders. </p>
+<div class="highlight"><pre><span></span><span class="c1"># Initialize count variable</span>
+<span class="n">x</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">print_var</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="c1"># Initialize dictionary - defaultdict initialized every key to 0</span>
+<span class="n">sub_dirs</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+<span class="c1"># Iterate through list generator</span>
+<span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">blob</span><span class="p">:</span>
+    <span class="n">x</span><span class="o">+=</span><span class="mi">1</span>
+    <span class="c1"># Perform this test to avoid files directly under the WITSML folder</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">sub_dirs</span><span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="c1"># Not the prettiest way to show an exmample folder structure</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">print_var</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">5</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="n">print_var</span> <span class="o">=</span> <span class="kc">True</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Total Number of Files in WITSML folder: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Total Number of Folders under WITSML folder: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sub_dirs</span><span class="p">)))</span>
+<span class="n">well_names</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;1&#39;</span><span class="p">):]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">sub_dirs</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Total number of wells: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">well_names</span><span class="p">)))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Folders contained under WITSML Folder: &#39;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">sub_dirs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">WITSML Realtime drilling data/NA-NA-15_$47$_9-F-5/1/log/1/1/1/00001.xml</span>
+<span class="err">Total Number of Files in WITSML folder: 20087</span>
+<span class="err">Total Number of Folders under WITSML folder: 26</span>
+<span class="err">Total number of wells: 17</span>
+<span class="err">Folders contained under WITSML Folder: </span>
+<span class="err">NA-NA-15_$47$_9-F-5</span>
+<span class="err">Norway-NA-15_$47$_9-F-1 C</span>
+<span class="err">Norway-NA-15_$47$_9-F-1</span>
+<span class="err">Norway-NA-15_$47$_9-F-11 B</span>
+<span class="err">Norway-NA-15_$47$_9-F-9 A</span>
+<span class="err">Norway-Statoil-15_$47$_9-F-12</span>
+<span class="err">Norway-Statoil-15_$47$_9-F-7</span>
+<span class="err">Norway-Statoil-NO 15_$47$_9-F-1 B</span>
+<span class="err">Norway-Statoil-NO 15_$47$_9-F-1 C</span>
+<span class="err">Norway-Statoil-NO 15_$47$_9-F-11</span>
+<span class="err">Norway-Statoil-NO 15_$47$_9-F-12</span>
+<span class="err">Norway-Statoil-NO 15_$47$_9-F-14</span>
+<span class="err">Norway-Statoil-NO 15_$47$_9-F-15</span>
+<span class="err">Norway-Statoil-NO 15_$47$_9-F-4</span>
+<span class="err">Norway-Statoil-NO 15_$47$_9-F-5</span>
+<span class="err">Norway-Statoil-NO 15_$47$_9-F-7</span>
+<span class="err">Norway-Statoil-NO 15_$47$_9-F-9</span>
+<span class="err">Norway-StatoilHydro-15_$47$_9-F-10</span>
+<span class="err">Norway-StatoilHydro-15_$47$_9-F-14</span>
+<span class="err">Norway-StatoilHydro-15_$47$_9-F-15</span>
+<span class="err">Norway-StatoilHydro-15_$47$_9-F-15A</span>
+<span class="err">Norway-StatoilHydro-15_$47$_9-F-15B</span>
+<span class="err">Norway-StatoilHydro-15_$47$_9-F-15S</span>
+<span class="err">Norway-StatoilHydro-15_$47$_9-F-4</span>
+<span class="err">Norway-StatoilHydro-15_$47$_9-F-5</span>
+<span class="err">Norway-StatoilHydro-15_$47$_9-F-9</span>
+</pre></div>
+
+
+<p>We can see that there are over 20k files contianed in just the WITSML drilling data folder! Over the course of this blog we will ingest this data and utilize different methods to store and access all of this data. </p>
+<p>There are a total of 26 folders under the WITSML data folder associated with a total of 17 wells. As mentioned previously the field consisted of a total of 24 drilled wells - meaning that some of the wells that were driled don't have associated WITSML data. Comparing the well names within the Volve field with the well names derived from folder structure - it appears as though the exploration wells are not represented. There are also some missing development wells such as 9-F-15D (although there is a 9-F-15S which isn't listed as a development well). This is a good moment to mention how in all field of data science but I believe particularly when looking at oil and gas datasets - the data may be missing / mislabeled / incorrect / etc. Having the proper QC guidelines in place is essential. Most of the time associated with getting a data science project off the ground will be in organizing, quality checking and synthesizing the available data in order to start painting a picture of the problem and assets. </p>
+<p>From the example file name we can see that there are many sub-directories underneath a particular well. We will need to further explor to understand what all of these folders mean - however they likely detail runs and/or passes made during the drilling execution of the well. While drilling multiple runs are required due to multiple strings of casing / bit trips / etc. Under most sub directories we have a log folder which contains the drilling mechanics files in WITSML format, and we also have a trajectory folder which contains survey information (wellbore position) also in WITSML format. It is clear therefore that in future data exploration we will need to efficiently read WITSML data into our data science platform. This will be covered on next weeks blog. </p>
+<h3>Brief EDA of Folder Structure and File Count</h3>
+<div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sub_dirs</span><span class="p">)),</span> <span class="nb">list</span><span class="p">(</span><span class="n">sub_dirs</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span> <span class="n">align</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sub_dirs</span><span class="p">)),</span> <span class="nb">list</span><span class="p">(</span><span class="n">sub_dirs</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span> <span class="n">rotation</span><span class="o">=</span><span class="s1">&#39;vertical&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+
+
+<p align="center">
+  <img width="1000" height="400" src="/images/output_8_0.png">
+</p>
+
+<p>Above we have plotted the number of files under each of the 26 sub-folders previously mentioned. We can see that we have a fairly uneven dataset where 3 wells comprise &gt; 75% of the entire file count. What this may mean is that other wells won't necessarily contain complete information related to the construction of the wellbore - or it may mean that most wells were completed in relatively few runs and therefore the total file count is lower but there is more information contained in each file (will explore below). Exploring some of the sub-folders we can see that many comprise only log and trajectory data (as previously detailed) but others are more complete (including those wells listed with higher file count: <p align="center">
+  <img width="1000" height="300" src="/images/AzureStorageExplorer_subfolder.jpg">
+</p></p>
+<p>This folder structure (where available) will help to better characterize the construction process undertaken for that well. Below we analyze the average file size for each sub-folder. </p>
+<div class="highlight"><pre><span></span><span class="c1"># A list generator can only be iterated over once - so we have to re-query the Azure Storage</span>
+<span class="n">blob</span> <span class="o">=</span> <span class="n">sas_blob_service</span><span class="o">.</span><span class="n">list_blobs</span><span class="p">(</span><span class="s1">&#39;pub&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+<span class="c1"># Initialize dictionary - defaultdict initialized every key to 0</span>
+<span class="n">sub_dirs_length</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+<span class="c1"># Iterate through list generator</span>
+<span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">blob</span><span class="p">:</span>
+    <span class="n">x</span><span class="o">+=</span><span class="mi">1</span>
+    <span class="c1"># Perform this test to avoid files directly under the WITSML folder</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="c1"># Total the blob size in bytes</span>
+        <span class="n">sub_dirs_length</span><span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">+=</span> <span class="n">b</span><span class="o">.</span><span class="n">properties</span><span class="o">.</span><span class="n">content_length</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sub_dirs_length</span><span class="p">)),</span> <span class="nb">list</span><span class="p">(</span><span class="n">sub_dirs_length</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span> <span class="n">align</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sub_dirs_length</span><span class="p">)),</span> <span class="nb">list</span><span class="p">(</span><span class="n">sub_dirs_length</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span> <span class="n">rotation</span><span class="o">=</span><span class="s1">&#39;vertical&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Total Folder Size by Folder&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+
+
+<p align="center">
+  <img width="1000" height="400" src="/images/output_10_0.png">
+</p>
+
+<p>The plot above looks at the total content size underneath each folder. This appears to closely match the total file count depicted above - however we can see that some of the wells (particularly those on the right hand size of the x-axis) have a larger folder size. This is promising that there may be more information contained on a number of wells due to a larger file size. Below we analyze average file size by folder. </p>
+<div class="highlight"><pre><span></span><span class="c1"># Loop through keys and divide by number of files (from previous code cell)</span>
+<span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">sub_dirs_length</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+    <span class="n">sub_dirs_length</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">sub_dirs_length</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">/</span> <span class="n">sub_dirs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sub_dirs_length</span><span class="p">)),</span> <span class="nb">list</span><span class="p">(</span><span class="n">sub_dirs_length</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span> <span class="n">align</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sub_dirs_length</span><span class="p">)),</span> <span class="nb">list</span><span class="p">(</span><span class="n">sub_dirs_length</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span> <span class="n">rotation</span><span class="o">=</span><span class="s1">&#39;vertical&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Average File Size by Folder&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+
+
+<p align="center">
+  <img width="1000" height="400" src="/images/output_12_0.png">
+</p>
+
+<p>So far we have only looked at a subset of the Volve dataset contained in the 'WITSML' folder. This has been in order to narrow the focus of our investigation (not to mention the time to query the entire dataset). However it is also important to understand that each of the primary folders contains different types of data that helps explain the Volve field. Integration of all of this information will be critical in order to most beneficially understand the field. Below we look at a count by file type over the entire Volve field.</p>
+<div class="highlight"><pre><span></span><span class="c1"># Look at all files in Volve Dataset</span>
+<span class="n">blob</span> <span class="o">=</span> <span class="n">sas_blob_service</span><span class="o">.</span><span class="n">list_blobs</span><span class="p">(</span><span class="s1">&#39;pub&#39;</span><span class="p">)</span>
+<span class="c1"># Initialize dictionary - defaultdict initialized every key to 0</span>
+<span class="n">file_type</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+<span class="c1"># Iterate through list generator</span>
+<span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">blob</span><span class="p">:</span>
+    <span class="c1"># Perform this test to avoid folder structures</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">:</span>
+        <span class="c1"># Total count of file type</span>
+        <span class="n">file_type</span><span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span> <span class="o">+=</span> <span class="mi">1</span>
+<span class="c1"># Filter for only file types having count &gt; 1</span>
+<span class="n">file_type_filter</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">for</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="ow">in</span> <span class="n">file_type</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="k">if</span> <span class="n">value</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">file_type_filter</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">file_type_filter</span><span class="p">)),</span> <span class="nb">list</span><span class="p">(</span><span class="n">file_type_filter</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span> <span class="n">align</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">file_type_filter</span><span class="p">)),</span> <span class="nb">list</span><span class="p">(</span><span class="n">file_type_filter</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span> <span class="n">rotation</span><span class="o">=</span><span class="s1">&#39;vertical&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Total Files by Type&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+
+
+<p align="center">
+  <img width="1000" height="400" src="/images/output_14_0.png">
+</p>
+
+<p>From the plot above we can see that XML overwhelmingly has the largest count of files. This is likely the WITSML file type that was previously discussed and will more thoroughly be examined next week. Beyond WITSML there are some other files associated with text, html, LAS. The variance in terms of file type is one of the challenges in all data science projects - but particularly true in the oil and gas industry.</p>
+<h3>Wrapping it Up &amp; Next Week</h3>
+<p>We have taken a very introductory look into the Volve dataset - the folder structure and file types involved. There are certainly a number of challenges involved in ingesting the data that has been released: 
+- Volume of the data
+- File types and data extraction. This will require domain specific knowledge, writing functions to import some of the oil and gas data types and an efficient storage structure to contain all the data
+- Missing data. As shown above some wells have a large volume of data while others appears to be absent from the dataset and/or contain little information. These wells will be more difficult to fully characterize</p>
+<p>We have explored using the blob connection to directly query azure storage which is much more efficient that downloading all files contained in the dataset. There are a number of other methods that can be used to further explore azure blob connections and the Volve dataset and I encourage you to look over <a href="https://azure-storage.readthedocs.io/ref/azure.storage.blob.baseblobservice.html">this</a> site to better understand how to get information from the azure storage blob and container. You can always also type ? object in a jupyter code cell and execute in order to get the documentation associated with that object which may reveal available methods to be used. </p>
+<p>Next week will will start looking at ingesting the data - specifically WISTML files. This is a custom file type specific to the oil and gas industry. Energistics (the company that maintains the standards of WITSML) has developed an API in .NET and there are other available resources to use <a href="https://github.com/hashmapinc/WitsmlObjectsLibrary">JAVA</a> to work with this data. Because both of these programming languages aren't traditionally used in data science we will write our own xml parser to look as some of the files and work with the ingested data. Future work will involve converting these libraries into a python friendly format so that all of the classes/methods and newly developed standards can be incorporated. </p>
+<p>Until then happy exploring the Volve dataset and getting your hands dirty incorporating data science practices in your oil and gas dataset!</p></p>
+        </div>
+    </div>
+
+<div class="fh5co-narrow-content">
+<div class="animate-box" data-animate-effect="fadeInLeft">
+    <h2><!-- <i class="icon-speech-bubble"></i>  -->Comments</h2>
+</div>
+<div class="animate-box" data-animate-effect="fadeInLeft">
+    <div id="disqus_thread"></div>
+</div>
+
+<script>
+var disqus_config = function () { 
+  this.language = "english";
+};
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+s.src = 'https://frombitumentobinary.disqus.com/embed.js';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+<noscript><a href="https://disqus.com/?ref_noscript">Please enable JavaScript to view the comments powered by Disqus.</a></noscript>
+<div class="fh5co-footer">
+    <p><small>&copy; 2016 Blend Free HTML5. All Rights Reserved.</span> <span>Designed by <a href="http://freehtml5.co/" target="_blank">FreeHTML5.co</a></span>
+    <br /><span>Pelican Theme by: <a href="https://github.com/claudio-walser/pelican-fh5co-marble" target="_blank">Claudio Walser</a></span></small></p>
+
+</div>                
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="/theme/js/jquery.min.js"></script>
+    <!-- jQuery Easing -->
+    <script src="/theme/js/jquery.easing.1.3.js"></script>
+    <!-- Bootstrap -->
+    <script src="/theme/js/bootstrap.min.js"></script>
+    <!-- Waypoints -->
+    <script src="/theme/js/jquery.waypoints.min.js"></script>
+    <!-- Flexslider -->
+    <script src="/theme/js/jquery.flexslider-min.js"></script>
+
+
+    <!-- MAIN JS -->
+    <script src="/theme/js/main.js"></script>
+    </body>
+</html>
