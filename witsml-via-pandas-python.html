@@ -1,0 +1,963 @@
+
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>WITSML import via Pandas and Python</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta name="author" content="Aaron Olson" />
+    <meta name="description" content="Import WITSML data using pandas dataframes" />
+    <meta name="keywords" content="WITSML, Pandas, Python">
+<!-- Facebook and Twitter integration -->
+<meta property="og:site_name" content="From Bitumen to Binary"/>
+<meta property="og:title" content="WITSML import via Pandas and Python"/>
+<meta property="og:description" content="Import WITSML data using pandas dataframes"/>
+<meta property="og:url" content="./witsml-via-pandas-python.html"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2020-01-12 12:00:00-05:00"/>
+<meta property="article:modified_time" content=""/>
+<meta property="article:author" content="./author/aaron-olson.html">
+<meta property="article:section" content="posts"/>
+    <meta property="article:tag" content="WITSML"/>
+    <meta property="article:tag" content="Pandas"/>
+    <meta property="article:tag" content="Python"/>
+    <meta property="og:image" content=".//images/blog/witsml.jfif">
+
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700" rel="stylesheet">
+
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="./theme/css/animate.css">
+    <!-- Icomoon Icon Fonts-->
+    <link rel="stylesheet" href="./theme/css/icomoon.css">
+    <!-- Bootstrap  -->
+    <link rel="stylesheet" href="./theme/css/bootstrap.css">
+    <!-- Flexslider  -->
+    <link rel="stylesheet" href="./theme/css/flexslider.css">
+    <!-- Theme style  -->
+    <link rel="stylesheet" href="./theme/css/style.css">
+    <!-- Custom style  -->
+    <link rel="stylesheet" href="./theme/css/custom.css">
+    <!-- pygments code highlight -->
+    <link rel="stylesheet" href="./theme/css/pygments.css">
+    <!-- tipue search -->
+    <link rel="stylesheet" href="./theme/tipuesearch/css/tipuesearch.css">
+
+    <!-- Modernizr JS -->
+    <script src="./theme/js/modernizr-2.6.2.min.js"></script>
+    <!-- FOR IE9 below -->
+    <!--[if lt IE 9]>
+    <script src="/theme/js/respond.min.js"></script>
+    <![endif]-->
+        <link href="https://frombitumentobinary.com/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="From Bitumen to Binary Atom">
+
+
+
+    </head>
+    <body>
+    <div id="fh5co-page">
+        <a href="#" class="js-fh5co-nav-toggle fh5co-nav-toggle"><i></i></a>
+        <aside id="fh5co-aside" role="complementary" class="border js-fullheight">
+
+            <nav class="fh5co-main-menu" role="navigation">
+            </nav>
+            <div class="clearfix"></div>
+            <h1  id="fh5co-logo">
+                <a href="./index.html">
+                    <img src="\images\Logo.JPG" />
+                </a>
+            </h1>
+            <nav class="fh5co-main-menu" role="navigation">
+<ul>
+    <!-- home link -->
+    <li><a href="./">Home</a></li>
+
+    <!-- page links -->
+            <li><a href="./pages/about.html">About</a></li>
+
+    <!-- categories -->
+        <li><a href="./categories.html">Categories</a></li>
+
+    <!-- tags -->
+        <li><a href="./tags.html">Tags</a></li>
+
+    <!-- additional menu items from config -->
+        <!-- <li class="nav-title">Misc</li> -->
+            <li><a href="./archives.html">Archive</a></li>
+            <li><a href="./contact.html">Contact</a></li>
+
+</ul>
+            </nav>
+
+<ul id="social">
+            <li><a href="https://github.com/ajolson89" alt="Github"><i class="icon-github"></i></a></li>
+
+            <li><a href="https://www.linkedin.com/in/aaron-j-olson/" alt="LinkedIn"><i class="icon-linkedin2"></i></a></li>
+
+</ul>
+        </aside>
+
+        <div id="fh5co-main">
+
+    <div class="fh5co-narrow-content article-content">
+        <h1 class="fh5co-heading-colored">WITSML import via Pandas and Python</h1>
+
+        <div>by
+                <a href="author/aaron-olson.html">Aaron Olson</a> - Sun 12 January 2020
+        </div>
+
+            <div><span>Tags: </span>
+                    <span><a href="./tag/witsml.html">#WITSML</a> </span>
+                    <span><a href="./tag/pandas.html">#Pandas</a> </span>
+                    <span><a href="./tag/python.html">#Python</a> </span>
+            </div>
+
+        <div class="animate-box" data-animate-effect="fadeInLeft">
+            <p class="animate-box" data-animate-effect="fadeInLeft"><p>In the last weeks example we took a look at connecting to Azure storage via python in order to directly import the files / data from the Volve dataset. As part of that analysis we looked at the types of file formats and saw that among many different types, xml was by far the most prevalent. Part of the '4 V's' of Data Science (volume, Variety, Velocity and Veracity) is variety. In the Volve dataset - last weeks analysis clearly showcased that variety (different types of data) is most certainly true in the oil and gas community. XML is a markup document that is prevalant outside of oil and gas. Within the petroleum industry xml files are typically WITSML files, which are xml files that follow a set of standards maintained by <a href="https://www.energistics.org/portfolio/witsml-data-standards/">Energistics</a>. </p>
+<p>Energistics maintains an SDK for use in reading/developing/publishing WITSML files. These files can contain a large variety of data within themselves, common examples are: 
+- Well logs such as those run with wireline tools
+- BHA or bottom hole assembly - containing information about the components that make up the bottom hole assembly (bit, motor, MWD, etc)
+- Survey information that defines the trajectory of the borehole</p>
+<p>This SDK is written in C# programming language. There is also a package written in Java and developed by <a href="https://github.com/hashmapinc/WitsmlObjectsLibrary">Hashmap</a>. These packages work well - however C# and Java are not commonly used in the data science community. One future development in this blog is to develop and release a methodology in order to interact with WITSML files using Python contained in a package or library. For now however we will use this blog post in order to look at two different types of WISTML files (logs and trajectory) - the structure of these files and how to automatically parse them into pandas dataframes for use in data science routines, and optionally big data techniques such as spark and/or databases. </p>
+<div class="highlight"><pre><span></span><span class="c1"># Import required libraries &amp; packages</span>
+<span class="kn">from</span> <span class="nn">azure.storage.blob</span> <span class="kn">import</span> <span class="n">BlockBlobService</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">xml.etree.ElementTree</span> <span class="k">as</span> <span class="nn">ET</span>
+<span class="kn">from</span> <span class="nn">bs4</span> <span class="kn">import</span> <span class="n">BeautifulSoup</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+<span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="o">%</span><span class="n">matplotlib</span> <span class="n">inline</span>
+</pre></div>
+
+
+<h3>Connect to the Blob Storage from Last Week</h3>
+<div class="highlight"><pre><span></span><span class="c1"># List the account name and sas_token *** I have removed the SAS token in order to allow the user to register properly thorugh Equinor&#39;s data portal</span>
+<span class="n">azure_storage_account_name</span> <span class="o">=</span> <span class="s1">&#39;dataplatformblvolve&#39;</span>
+<span class="n">sas_token</span> <span class="o">=</span> <span class="s1">&#39;sv=2018-03-28&amp;sr=c&amp;sig=LwIrnAVKe0</span><span class="si">%2F</span><span class="s1">PSSf6L9n6bAvdnCYQoBc1fSUpj1MxwTg%3D&amp;se=2020-01-23T11%3A56%3A25Z&amp;sp=rl&#39;</span>
+
+<span class="c1"># Create a service and use the SAS </span>
+<span class="n">sas_blob_service</span> <span class="o">=</span> <span class="n">BlockBlobService</span><span class="p">(</span> 
+    <span class="n">account_name</span><span class="o">=</span><span class="n">azure_storage_account_name</span><span class="p">,</span> 
+    <span class="n">sas_token</span><span class="o">=</span><span class="n">sas_token</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;WITSML Realtime drilling data/Norway-StatoilHydro-15_$47$_9-F-14/1/log/1/1/1&#39;</span>
+
+<span class="n">blob</span> <span class="o">=</span> <span class="n">sas_blob_service</span><span class="o">.</span><span class="n">list_blobs</span><span class="p">(</span><span class="s1">&#39;pub&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">blob</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">WITSML Realtime drilling data/Norway-StatoilHydro-15_$47$_9-F-14/1/log/1/1/1/00001.xml</span>
+<span class="err">WITSML Realtime drilling data/Norway-StatoilHydro-15_$47$_9-F-14/1/log/1/1/1/00002.xml</span>
+<span class="err">WITSML Realtime drilling data/Norway-StatoilHydro-15_$47$_9-F-14/1/log/1/1/1/00003.xml</span>
+</pre></div>
+
+
+<p>Above we have connected to a folder within the well 9-F-14 containing three different WITSML files of well logs. Below we will look at the structure of one of these files:</p>
+<div class="highlight"><pre><span></span><span class="n">WITSML_file</span> <span class="o">=</span> <span class="s1">&#39;WITSML Realtime drilling data/Norway-StatoilHydro-15_$47$_9-F-14/1/log/1/1/1/00001.xml&#39;</span>
+<span class="n">blob</span> <span class="o">=</span> <span class="n">sas_blob_service</span><span class="o">.</span><span class="n">get_blob_to_text</span><span class="p">(</span><span class="s1">&#39;pub&#39;</span><span class="p">,</span> <span class="n">WITSML_file</span><span class="p">)</span>
+<span class="n">blob</span><span class="o">.</span><span class="n">content</span><span class="p">[:</span><span class="mi">1000</span><span class="p">]</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span>&#39;<span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span><span class="nt">&lt;logs</span> <span class="na">xmlns=</span><span class="s">&quot;http://www.witsml.org/schemas/1series&quot;</span> <span class="na">xmlns:xsi=</span><span class="s">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span> <span class="na">version=</span><span class="s">&quot;1.4.1.1&quot;</span><span class="nt">&gt;&lt;log</span> <span class="na">uidWell=</span><span class="s">&quot;W-353085&quot;</span> <span class="na">uidWellbore=</span><span class="s">&quot;B-353085&quot;</span> <span class="na">uid=</span><span class="s">&quot;L-567705-MD&quot;</span><span class="nt">&gt;&lt;nameWell&gt;</span>15/9-F-14<span class="nt">&lt;/nameWell&gt;&lt;nameWellbore&gt;</span>15/9-F-14 - Main Wellbore<span class="nt">&lt;/nameWellbore&gt;&lt;name&gt;</span>MWD Geocervices Real Time Data 26in - MD Log<span class="nt">&lt;/name&gt;&lt;serviceCompany&gt;</span>Schlumberger<span class="nt">&lt;/serviceCompany&gt;&lt;runNumber&gt;</span>2<span class="nt">&lt;/runNumber&gt;&lt;pass&gt;</span>Drilling<span class="nt">&lt;/pass&gt;&lt;creationDate&gt;</span>2007-12-03T17:51:24.000Z<span class="nt">&lt;/creationDate&gt;&lt;indexType&gt;</span>measured depth<span class="nt">&lt;/indexType&gt;&lt;startIndex</span> <span class="na">uom=</span><span class="s">&quot;m&quot;</span><span class="nt">&gt;</span>0<span class="nt">&lt;/startIndex&gt;&lt;endIndex</span> <span class="na">uom=</span><span class="s">&quot;m&quot;</span><span class="nt">&gt;</span>457.011<span class="nt">&lt;/endIndex&gt;&lt;direction&gt;</span>increasing<span class="nt">&lt;/direction&gt;&lt;indexCurve&gt;</span>DEPTH<span class="nt">&lt;/indexCurve&gt;&lt;priv_dTimPriority&gt;</span>2007-12-03T17:51:24.000Z<span class="nt">&lt;/priv_dTimPriority&gt;&lt;logCurveInfo</span> <span class="na">uid=</span><span class="s">&quot;G_IC5&quot;</span><span class="nt">&gt;&lt;mnemonic&gt;</span>G_IC5<span class="nt">&lt;/mnemonic&gt;&lt;unit&gt;</span>ppm<span class="nt">&lt;/unit&gt;&lt;minIndex</span> <span class="na">uom=</span><span class="s">&quot;m&quot;</span><span class="nt">&gt;</span>193.999<span class="nt">&lt;/minIndex&gt;&lt;maxIndex</span> <span class="na">uom=</span><span class="s">&quot;m&quot;</span><span class="nt">&gt;</span>456.999<span class="nt">&lt;/maxIndex&gt;&lt;curveDescription&gt;</span>Gas, Iso-C5<span class="nt">&lt;/curveDescription&gt;&lt;dataSource&gt;</span>MudLog<span class="nt">&lt;/dataSource&gt;&lt;typeLogData&gt;</span>double<span class="nt">&lt;/typeLogData&gt;</span><span class="err">&lt;</span>/lo&#39;
+</pre></div>
+
+
+<p>We can see by printing the first 1000 characters of the WITSML file that we do have XML tags that are associated to different information contained in the log file. It can be hard to interpret the xml file without parsing to better understand its organization and content. We will use beautiful soup which is a parsing library developed for xml and html in python. We can use it to read in our WITSML file and begin to make sense of it. </p>
+<h3>Explore WITSML file Structure</h3>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">glob</span><span class="o">,</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">bs4</span> <span class="kn">import</span> <span class="n">BeautifulSoup</span>
+<span class="n">master_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+<span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">blob</span><span class="o">.</span><span class="n">content</span><span class="p">,</span> <span class="s1">&#39;xml&#39;</span><span class="p">)</span>
+<span class="nb">set</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">tag</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">()])</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">{&#39;commonData&#39;,</span>
+<span class="err"> &#39;creationDate&#39;,</span>
+<span class="err"> &#39;curveDescription&#39;,</span>
+<span class="err"> &#39;dTimCreation&#39;,</span>
+<span class="err"> &#39;dTimLastChange&#39;,</span>
+<span class="err"> &#39;data&#39;,</span>
+<span class="err"> &#39;dataSource&#39;,</span>
+<span class="err"> &#39;direction&#39;,</span>
+<span class="err"> &#39;endIndex&#39;,</span>
+<span class="err"> &#39;indexCurve&#39;,</span>
+<span class="err"> &#39;indexType&#39;,</span>
+<span class="err"> &#39;log&#39;,</span>
+<span class="err"> &#39;logCurveInfo&#39;,</span>
+<span class="err"> &#39;logData&#39;,</span>
+<span class="err"> &#39;logs&#39;,</span>
+<span class="err"> &#39;maxIndex&#39;,</span>
+<span class="err"> &#39;minIndex&#39;,</span>
+<span class="err"> &#39;mnemonic&#39;,</span>
+<span class="err"> &#39;mnemonicList&#39;,</span>
+<span class="err"> &#39;name&#39;,</span>
+<span class="err"> &#39;nameWell&#39;,</span>
+<span class="err"> &#39;nameWellbore&#39;,</span>
+<span class="err"> &#39;pass&#39;,</span>
+<span class="err"> &#39;priv_dTimPriority&#39;,</span>
+<span class="err"> &#39;priv_dTimReceived&#39;,</span>
+<span class="err"> &#39;priv_ipLastChange&#39;,</span>
+<span class="err"> &#39;priv_ipOwner&#39;,</span>
+<span class="err"> &#39;priv_userLastChange&#39;,</span>
+<span class="err"> &#39;priv_userOwner&#39;,</span>
+<span class="err"> &#39;runNumber&#39;,</span>
+<span class="err"> &#39;serviceCompany&#39;,</span>
+<span class="err"> &#39;sourceName&#39;,</span>
+<span class="err"> &#39;startIndex&#39;,</span>
+<span class="err"> &#39;typeLogData&#39;,</span>
+<span class="err"> &#39;unit&#39;,</span>
+<span class="err"> &#39;unitList&#39;}</span>
+</pre></div>
+
+
+<p>Above we found all of the tags that were nested within the XML file. The structure of these xml (and also HTML) text is something such as <commonData>This is common Data</commonData>. Each tag has a start and an end defined by the same tag with a forward slash. The data contained between the tags is the content for that specific tag (sometimes and oftentimes tags are nested). In the above code cell we looked for all unique tags to undestand what infomration is contained in the WITSML file. </p>
+<p>We have several examples of header information - such as nameWell, serviceCompany, runNumber as well as start and stop index values. Then there are a number of headers that give information about the data contained in this file. These are things such as: logCurveInfo, mnemonic, unit, dataSource. All of these are only represented once in the file but help define the information contained in the data tag. </p>
+<div class="highlight"><pre><span></span><span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s1">&#39;commonData&#39;</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span>[<span class="nt">&lt;commonData&gt;&lt;sourceName&gt;</span>SLB_DS<span class="nt">&lt;/sourceName&gt;&lt;dTimCreation&gt;</span>2014-10-20T15:02:31.013Z<span class="nt">&lt;/dTimCreation&gt;&lt;dTimLastChange&gt;</span>2015-06-10T08:59:45.242Z<span class="nt">&lt;/dTimLastChange&gt;&lt;priv_userLastChange&gt;</span>scmanager<span class="nt">&lt;/priv_userLastChange&gt;&lt;priv_ipLastChange&gt;</span>143.97.229.4<span class="nt">&lt;/priv_ipLastChange&gt;&lt;priv_userOwner&gt;</span>f_sitecom_synchronizer@statoil.net<span class="nt">&lt;/priv_userOwner&gt;&lt;priv_ipOwner&gt;</span>192.168.157.252<span class="nt">&lt;/priv_ipOwner&gt;&lt;priv_dTimReceived&gt;</span>2015-06-10T08:59:45.242Z<span class="nt">&lt;/priv_dTimReceived&gt;&lt;/commonData&gt;</span>]
+</pre></div>
+
+
+<p>If we want to examine a particular tag example we can use the find_all method to locate and print that specific content. Here we can see that commonData has a few tags nested underneath it and is associated primarily with the computer that generated the WITSML file. </p>
+<div class="highlight"><pre><span></span><span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s1">&#39;mnemonicList&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">text</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">&#39;DEPTH,G_IC5,BDDI,INCL_CONT_RT,TDH,TVA,SHKRSK_RT,G_NC5,MFOP,NRPM_RT,TQA,RHX_RT,DVER,SHKTOT_RT,PASS_NAME,RPM,SPPA,TREV,MTOA,DRTV,BITRUN,GTF_RT,GASA,HKLD,ATMP_MWD,ROP,DXC,TFLO,MDOA,ACTC,GRM1,GRR,CRPM_RT,SHKRATE_RT,G_H2SA,SWOB,AZIM_CONT_RT,MWTI,TRPM_RT,BDTI,TEMP_DNI_RT,RGX_RT,SHK3TM_RT,APRS_MWD,ROP5,BOUNCE_RT,G_C2,TVDE,AJAM_MWD,SHKPK_RT,STICK_RT,G_C3,ECD_MWD,G_IC4,DRILLTM_RT,G_C1,G_NC4,CRS1&#39;</span>
+</pre></div>
+
+
+<p>Searching for the mnemonic list we can see what channels are contained in the file. As can be seen from the list above this is a drilling mechanics WITSML file containing information (depth indexed) about the drilling process. This will be an important file to extract the data from as machine learning routines related to the drilling process will require this information. There are two different types of indexes in the oil and gas industry - depth and time. Depth can be helpful when trying to understand how the drilling process is going (on bottom), whether there is a formation change, measuring MSE and other indicators that may flag inefficient or other drilling dysfunctions. </p>
+<p>Time based can be critical to understand every event that happens in the drilling process and may be necessary for certain problems. Predicting pump repair, understanding shocks and vibration, as well as other time based problems will require a time index. Time based data can quickly get very large, especially depending on the time interval. Many sensors on the rig or downhole memory files may be sub-millisecond for their record rate. This can give high precision for the downhole environment, but can also be challenging to utilize non-standard time intervals for ML. In a future blog post we will ingest time based data and review machine learning techniques to handle this type of data. </p>
+<p>For now - we can see that the first mnemonic gives the file index (depth), there is also information containing the trajectory as computed in real time, drilling mechanics (flow, ROP, RPM, hookload, etc) and additionally information from the downhole tools such as shocks, toolface, temperature and ECD. </p>
+<p>From the tag list before - we see that one of the tags is the uniList:</p>
+<div class="highlight"><pre><span></span><span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s1">&#39;unitList&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">text</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">&#39;m,ppm,m,dega,degC,m3,unitless,ppm,%,unitless,kN.m,unitless,m,unitless,unitless,rpm,kPa,unitless,degC,m,unitless,dega,%,kkgf,degC,m/h,unitless,L/min,g/cm3,unitless,gAPI,1/s,rpm,1/s,ppm,kkgf,dega,g/cm3,rpm,h,degC,unitless,min,kPa,m/h,unitless,ppm,m,unitless,m/s2,rpm,ppm,g/cm3,ppm,unitless,ppm,ppm,unitless&#39;</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Length of Mnemonic List: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s1">&#39;mnemonicList&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">))))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Length of Unit List: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s1">&#39;unitList&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">))))</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">Length of Mnemonic List: 58</span>
+<span class="err">Length of Unit List: 58</span>
+</pre></div>
+
+
+<p>We can see that each item in the mnemonic correlates to the item in the unit list. This can be confirmed as well looking at the printed lists of the two tags. The measurements correlate to the metric unit ie depth -&gt; m or meters, SPPA -&gt; kPa, etc. Similarly the data tag (which contains the actual data) also contains 58 values per row. If we think of it as a table, the mnemonic list defines the column names, the units are another attribute of the name, and then each row measures all the different data points at a particular depth (or point in time if using a time based file). </p>
+<div class="highlight"><pre><span></span><span class="nb">len</span><span class="p">(</span><span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">))</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">58</span>
+</pre></div>
+
+
+<p>Knowing this structure, we can import the file into a pandas dataframe. Below we show an example of this. First off we define a function called units, which simply converts the metric units into US units since I'm more familiar with oil and gas data in this unit system. It's a relatively crude (though functional) function - a better design would be to utilize a dictionary - but we will go with the if statement method. </p>
+<p>Then below this we import our sample file into a pandas dataframe and call the units function to convert the file. </p>
+<h3>Import WITSML to Pandas DataFrame</h3>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">units</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    The intent of this function is to convert units from metric to US</span>
+
+<span class="sd">    Input: df - pandas dataframe</span>
+<span class="sd">    Output: df - pandas dataframe with columns transformed based on current units</span>
+
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">corr_columns</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">corr_columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">col</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; - &#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="c1"># Analyze column units and transform if appropriate</span>
+        <span class="c1"># Future work will use dictionary rather than series of if statements</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">col</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; - &#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;m&#39;</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">col</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; - &#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;m/h&#39;</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">col</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; - &#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;m/s2&#39;</span><span class="p">):</span>
+            <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span> <span class="o">*</span> <span class="mf">3.28084</span>
+        <span class="k">if</span> <span class="n">col</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; - &#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;degC&#39;</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span> <span class="o">*</span> <span class="mi">9</span><span class="o">/</span><span class="mi">5</span><span class="p">)</span> <span class="o">+</span> <span class="mi">32</span>
+        <span class="k">if</span> <span class="n">col</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; - &#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;m3&#39;</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span> <span class="o">*</span> <span class="mf">6.289814</span>
+        <span class="k">if</span> <span class="n">col</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; - &#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;kkgf&#39;</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span> <span class="o">*</span> <span class="mf">2.2</span>
+        <span class="k">if</span> <span class="n">col</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; - &#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;kPa&#39;</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.145038</span>
+        <span class="k">if</span> <span class="n">col</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; - &#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;L/min&#39;</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.264172875</span>
+        <span class="k">if</span> <span class="n">col</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; - &#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;g/cm3&#39;</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span> <span class="o">*</span> <span class="mf">8.3454</span>
+        <span class="k">if</span> <span class="n">col</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; - &#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;kN.m&#39;</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.737562</span>
+
+    <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">corr_columns</span>
+    <span class="k">return</span> <span class="n">df</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="c1"># get a list of the log names (columns in our dataframe)</span>
+<span class="n">log_names</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s1">&#39;mnemonicList&#39;</span><span class="p">)</span>
+<span class="c1"># also use the units to determine how to convert to english units</span>
+<span class="n">unit_names</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s1">&#39;unitList&#39;</span><span class="p">)</span>
+<span class="c1"># define that the header is the &#39;mnemonic - unit&#39; this simiplifies the pandas dataframe format</span>
+<span class="n">header</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="s1">&#39; - &#39;</span> <span class="o">+</span> <span class="n">j</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">log_names</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">string</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">),</span> <span class="n">unit_names</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">string</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">))]</span> 
+<span class="n">data</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">)</span>
+<span class="c1"># define out pandas dataframe - the columns are the header - a concatenation of the mnemonic and the unit, the data is parsed by looping over every </span>
+<span class="c1"># list found under the data tag.</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">header</span><span class="p">,</span> 
+                  <span class="n">data</span><span class="o">=</span><span class="p">[</span><span class="n">row</span><span class="o">.</span><span class="n">string</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">data</span><span class="p">])</span>
+<span class="c1"># replace blank values with nan</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span><span class="p">)</span>
+<span class="c1"># run the dataframe through the units function</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">units</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+
+<span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>DEPTH</th>
+      <th>G_IC5</th>
+      <th>BDDI</th>
+      <th>INCL_CONT_RT</th>
+      <th>TDH</th>
+      <th>TVA</th>
+      <th>SHKRSK_RT</th>
+      <th>G_NC5</th>
+      <th>MFOP</th>
+      <th>NRPM_RT</th>
+      <th>...</th>
+      <th>AJAM_MWD</th>
+      <th>SHKPK_RT</th>
+      <th>STICK_RT</th>
+      <th>G_C3</th>
+      <th>ECD_MWD</th>
+      <th>G_IC4</th>
+      <th>DRILLTM_RT</th>
+      <th>G_C1</th>
+      <th>G_NC4</th>
+      <th>CRS1</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.000000</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>601.201</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>300.688986</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>301.299222</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>301.610902</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>302.240823</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+  </tbody>
+</table>
+<p>5 rows × 58 columns</p>
+</div>
+
+<p>Awesome! We just imported the WITSML file into a pandas dataframe. While importing we did neglect some of the file information contained in many of the other tags (service provider, start/stop depths, etc). For machine learning processes - this isn't necessarily required - depending on what we are trying to solve. Based on the header we can see that most of our values are NaN. This can be a challenge particularly in time based as previously mentioned with uneven time intervals. Lets take a look at the distribution of NaN values:</p>
+<div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">15</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">())),</span> <span class="nb">list</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">values</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)),</span> <span class="n">align</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">())),</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">to_list</span><span class="p">(),</span> <span class="n">rotation</span><span class="o">=</span><span class="s1">&#39;vertical&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Total Files by Type&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+
+
+<p align="center">
+  <img width="1000" height="400" src="/images/output_23_0.png">
+</p>
+
+<p>We can see that many of the channels have a large number of NaN values. This isn't necessarily a terrible thing, however it's not ideal. There are multiple ways to handle the NaN values - we can leave them as is - however many ML algorithms will struggle with NaN data. We could interpolate between values, however we need to be careful here both in terms of the acceptable length of interpolation, and knowledge that interpolation may not be accurate in the sense that data anomolies / etc may be contained in the missing values. Other options involve forward or backward fill rather than interporlation.</p>
+<p>Pandas has a built in interpolation function call which has a limit argument. The limit is defined as number of consecutive missing datapoints to fill. From the header we can see that generally we have a 0.5ft data interval - however there are also examples where the data has a larger than 0.5ft gap. For this example we will interpolate up to 5 missing datapoints. </p>
+<div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="p">:</span>
+    <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s1">&#39;coerce&#39;</span><span class="p">)</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">axis</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">limit</span> <span class="o">=</span> <span class="mi">5</span><span class="p">)</span>
+<span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>DEPTH</th>
+      <th>G_IC5</th>
+      <th>BDDI</th>
+      <th>INCL_CONT_RT</th>
+      <th>TDH</th>
+      <th>TVA</th>
+      <th>SHKRSK_RT</th>
+      <th>G_NC5</th>
+      <th>MFOP</th>
+      <th>NRPM_RT</th>
+      <th>...</th>
+      <th>AJAM_MWD</th>
+      <th>SHKPK_RT</th>
+      <th>STICK_RT</th>
+      <th>G_C3</th>
+      <th>ECD_MWD</th>
+      <th>G_IC4</th>
+      <th>DRILLTM_RT</th>
+      <th>G_C1</th>
+      <th>G_NC4</th>
+      <th>CRS1</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>...</td>
+      <td>601.201</td>
+      <td>601.201</td>
+      <td>601.201</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>601.201</td>
+      <td>601.201</td>
+      <td>601.201</td>
+      <td>601.201</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>300.688986</td>
+      <td>300.688988</td>
+      <td>300.688990</td>
+      <td>300.688992</td>
+      <td>300.688994</td>
+      <td>300.688996</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>301.299222</td>
+      <td>301.299621</td>
+      <td>301.300020</td>
+      <td>301.300419</td>
+      <td>301.300818</td>
+      <td>301.301217</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>301.610902</td>
+      <td>301.610578</td>
+      <td>301.610253</td>
+      <td>301.609929</td>
+      <td>301.609605</td>
+      <td>301.609280</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>302.240823</td>
+      <td>302.240672</td>
+      <td>302.240521</td>
+      <td>302.240370</td>
+      <td>302.240219</td>
+      <td>302.240068</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+  </tbody>
+</table>
+<p>5 rows × 58 columns</p>
+</div>
+
+<div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">15</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">())),</span> <span class="nb">list</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">values</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)),</span> <span class="n">align</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">())),</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">to_list</span><span class="p">(),</span> <span class="n">rotation</span><span class="o">=</span><span class="s1">&#39;vertical&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Total Files by Type&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+
+
+<p align="center">
+  <img width="1000" height="400" src="/images/output_26_0.png">
+</p>
+
+<p>From the interpolation we can see that we dramatically reduced the missing data for many of the channels in the dataset. For those channels that still have missing data the average is closer to 80% rather than 95+%. Using this data we can now explore the data. Next week we will dive more in depth with some basic EDA - however the plot below shows what is capable given the drilling mechanics data. </p>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">scatterplot</span><span class="p">(</span><span class="s1">&#39;SWOB&#39;</span><span class="p">,</span> <span class="s1">&#39;ROP&#39;</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">df</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">&lt;matplotlib.axes._subplots.AxesSubplot at 0x23e53c61240&gt;</span>
+</pre></div>
+
+
+<p align="center">
+  <img width="1000" height="400" src="/images/output_28_1.png">
+</p>
+
+<p>Clearly there are data quality issues with the data that we've imported. Negative ROP and/or WOB &gt; 500 likely aren't actually correct values. This will be handled in another blog post. What I will conclude with is an example code to import and merge three different log files that contain different runs. This first file contained 10k rows of data, however that does not encompass the entire well. We need to read in multiple files and merge them to define the entire wellbore. </p>
+<div class="highlight"><pre><span></span><span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;WITSML Realtime drilling data/Norway-StatoilHydro-15_$47$_9-F-14/1/log/1/1/1&#39;</span>
+<span class="n">blob</span> <span class="o">=</span> <span class="n">sas_blob_service</span><span class="o">.</span><span class="n">list_blobs</span><span class="p">(</span><span class="s1">&#39;pub&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+<span class="n">master_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">file</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">blob</span><span class="p">):</span>
+    <span class="n">blob</span> <span class="o">=</span> <span class="n">sas_blob_service</span><span class="o">.</span><span class="n">get_blob_to_text</span><span class="p">(</span><span class="s1">&#39;pub&#39;</span><span class="p">,</span> <span class="n">file</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">blob</span><span class="o">.</span><span class="n">content</span><span class="p">,</span> <span class="s1">&#39;xml&#39;</span><span class="p">)</span>
+    <span class="n">log_names</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s1">&#39;mnemonicList&#39;</span><span class="p">)</span>
+    <span class="n">unit_names</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s1">&#39;unitList&#39;</span><span class="p">)</span>
+    <span class="n">header</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="s1">&#39; - &#39;</span> <span class="o">+</span> <span class="n">j</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">log_names</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">string</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">),</span> <span class="n">unit_names</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">string</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">))]</span> 
+    <span class="n">data</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">header</span><span class="p">,</span> 
+                      <span class="n">data</span><span class="o">=</span><span class="p">[</span><span class="n">row</span><span class="o">.</span><span class="n">string</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">data</span><span class="p">])</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">units</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">master_df</span> <span class="o">=</span> <span class="n">df</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">master_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">master_df</span><span class="p">,</span> <span class="n">df</span><span class="p">],</span> <span class="n">sort</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Total Length of DataFrame: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">master_df</span><span class="p">)))</span>
+<span class="n">master_df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">Total Length of DataFrame: 30000</span>
+</pre></div>
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>DEPTH</th>
+      <th>G_IC5</th>
+      <th>BDDI</th>
+      <th>INCL_CONT_RT</th>
+      <th>TDH</th>
+      <th>TVA</th>
+      <th>SHKRSK_RT</th>
+      <th>G_NC5</th>
+      <th>MFOP</th>
+      <th>NRPM_RT</th>
+      <th>...</th>
+      <th>AJAM_MWD</th>
+      <th>SHKPK_RT</th>
+      <th>STICK_RT</th>
+      <th>G_C3</th>
+      <th>ECD_MWD</th>
+      <th>G_IC4</th>
+      <th>DRILLTM_RT</th>
+      <th>G_C1</th>
+      <th>G_NC4</th>
+      <th>CRS1</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.000000</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>601.201</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>300.688986</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>301.299222</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>301.610902</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>302.240823</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+  </tbody>
+</table>
+<p>5 rows × 58 columns</p>
+</div>
+
+<p>In the code above we loaded each WITSML file individually and then combined them to create a log file of the entire wellbore. We have now successfully loaded the WITSML log based files into a pandas dataframe. There are other WITSMl files (trajectory, etc) that we will also need to import in order to effectively capture all the data in the Volve dataset - but this provides a good start, as the log based data contain a bulk of the data explaining the drilling process. </p>
+<p>In future weeks we will explore not only depth based but time based data. We will look deeper into the logs via exploratory data analysis and discuss how to handle missing or incorrect data, and we will analyze ways in which to effectively store this data as it gets bigger. For now we only have worked with 30k rows - however if we were to involve the entire field, this would quickly reach the limit of our computers memory and could not be contained in a single pandas dataframe. </p></p>
+        </div>
+    </div>
+
+<div class="fh5co-narrow-content">
+<div class="animate-box" data-animate-effect="fadeInLeft">
+    <h2><!-- <i class="icon-speech-bubble"></i>  -->Comments</h2>
+</div>
+<div class="animate-box" data-animate-effect="fadeInLeft">
+    <div id="disqus_thread"></div>
+</div>
+
+<script>
+var disqus_config = function () { 
+  this.language = "english";
+};
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+s.src = 'https://frombitumentobinary.disqus.com/embed.js';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+<noscript><a href="https://disqus.com/?ref_noscript">Please enable JavaScript to view the comments powered by Disqus.</a></noscript>
+<div class="fh5co-footer">
+    <p><small>&copy; 2016 Blend Free HTML5. All Rights Reserved.</span> <span>Designed by <a href="http://freehtml5.co/" target="_blank">FreeHTML5.co</a></span>
+    <br /><span>Pelican Theme by: <a href="https://github.com/claudio-walser/pelican-fh5co-marble" target="_blank">Claudio Walser</a></span></small></p>
+
+</div>                
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="./theme/js/jquery.min.js"></script>
+    <!-- jQuery Easing -->
+    <script src="./theme/js/jquery.easing.1.3.js"></script>
+    <!-- Bootstrap -->
+    <script src="./theme/js/bootstrap.min.js"></script>
+    <!-- Waypoints -->
+    <script src="./theme/js/jquery.waypoints.min.js"></script>
+    <!-- Flexslider -->
+    <script src="./theme/js/jquery.flexslider-min.js"></script>
+
+
+    <!-- MAIN JS -->
+    <script src="./theme/js/main.js"></script>
+    </body>
+</html>
