@@ -1,0 +1,1324 @@
+
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Reading In Other WITSML</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta name="author" content="Aaron Olson" />
+    <meta name="description" content="Import BHA and Trajectory into Pandas" />
+    <meta name="keywords" content="WITSML, Pandas, Python">
+<!-- Facebook and Twitter integration -->
+<meta property="og:site_name" content="From Bitumen to Binary"/>
+<meta property="og:title" content="Reading In Other WITSML"/>
+<meta property="og:description" content="Import BHA and Trajectory into Pandas"/>
+<meta property="og:url" content="./other-witsml.html"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2020-04-27 12:00:00-04:00"/>
+<meta property="article:modified_time" content=""/>
+<meta property="article:author" content="./author/aaron-olson.html">
+<meta property="article:section" content="posts"/>
+    <meta property="article:tag" content="WITSML"/>
+    <meta property="article:tag" content="Pandas"/>
+    <meta property="article:tag" content="Python"/>
+    <meta property="og:image" content=".//images/blog/drillingrig.jpg">
+
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700" rel="stylesheet">
+
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="./theme/css/animate.css">
+    <!-- Icomoon Icon Fonts-->
+    <link rel="stylesheet" href="./theme/css/icomoon.css">
+    <!-- Bootstrap  -->
+    <link rel="stylesheet" href="./theme/css/bootstrap.css">
+    <!-- Flexslider  -->
+    <link rel="stylesheet" href="./theme/css/flexslider.css">
+    <!-- Theme style  -->
+    <link rel="stylesheet" href="./theme/css/style.css">
+    <!-- Custom style  -->
+    <link rel="stylesheet" href="./theme/css/custom.css">
+    <!-- pygments code highlight -->
+    <link rel="stylesheet" href="./theme/css/pygments.css">
+    <!-- tipue search -->
+    <link rel="stylesheet" href="./theme/tipuesearch/css/tipuesearch.css">
+
+    <!-- Modernizr JS -->
+    <script src="./theme/js/modernizr-2.6.2.min.js"></script>
+    <!-- FOR IE9 below -->
+    <!--[if lt IE 9]>
+    <script src="/theme/js/respond.min.js"></script>
+    <![endif]-->
+        <link href="https://frombitumentobinary.com/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="From Bitumen to Binary Atom">
+
+
+
+    </head>
+    <body>
+    <div id="fh5co-page">
+        <a href="#" class="js-fh5co-nav-toggle fh5co-nav-toggle"><i></i></a>
+        <aside id="fh5co-aside" role="complementary" class="border js-fullheight">
+
+            <nav class="fh5co-main-menu" role="navigation">
+            </nav>
+            <div class="clearfix"></div>
+            <h1  id="fh5co-logo">
+                <a href="./index.html">
+                    <img src="\images\Logo.JPG" />
+                </a>
+            </h1>
+            <nav class="fh5co-main-menu" role="navigation">
+<ul>
+    <!-- home link -->
+    <li><a href="./">Home</a></li>
+
+    <!-- page links -->
+            <li><a href="./pages/about.html">About</a></li>
+
+    <!-- categories -->
+        <li><a href="./categories.html">Categories</a></li>
+
+    <!-- tags -->
+        <li><a href="./tags.html">Tags</a></li>
+
+    <!-- additional menu items from config -->
+        <!-- <li class="nav-title">Misc</li> -->
+            <li><a href="./archives.html">Archive</a></li>
+            <li><a href="./contact.html">Contact</a></li>
+
+</ul>
+            </nav>
+
+<ul id="social">
+            <li><a href="https://github.com/ajolson89" alt="Github"><i class="icon-github"></i></a></li>
+
+            <li><a href="https://www.linkedin.com/in/aaron-j-olson/" alt="LinkedIn"><i class="icon-linkedin2"></i></a></li>
+
+</ul>
+        </aside>
+
+        <div id="fh5co-main">
+
+    <div class="fh5co-narrow-content article-content">
+        <h1 class="fh5co-heading-colored">Reading In Other WITSML</h1>
+
+        <div>by
+                <a href="author/aaron-olson.html">Aaron Olson</a> - Mon 27 April 2020
+        </div>
+
+            <div><span>Tags: </span>
+                    <span><a href="./tag/witsml.html">#WITSML</a> </span>
+                    <span><a href="./tag/pandas.html">#Pandas</a> </span>
+                    <span><a href="./tag/python.html">#Python</a> </span>
+            </div>
+
+        <div class="animate-box" data-animate-effect="fadeInLeft">
+            <p class="animate-box" data-animate-effect="fadeInLeft"><p>To date we have shown how to read in WITSML log files - or files with an xml ending that follow the WITSML standard and contain log (date or time) based data. We have written import functions to read in the WTSML log data. In another week we will utilize a java based SDK which follows Energistics standards for reading in xml data (rather than our custom written parser). However in the mean time - while log data is extremely impactful for understanding the fundamentals of drilling and/or rock properties/mechanics, there are a number of other WITSML data types that compose essential data that may (or may not) be impactful on the drilling and rock property measurements. </p>
+<p>Two common other types of WITSML data are trajectory files and BHA's. Trajectory contains the surveys (typically at approximately 100' intervals) giving at a minimum the measured depth, inclination and azimuth. Many other trajectory files also give additional information such as true vertical depth (TVD), dogleg severity (DLS), build and/or turn rate, as well as other measurements based on the surface location (Northing/Easting, Latitude/Longitude, etc). Knowing the trajectory is essential both for understanding the drilling process (low ROP but high DLS may indicate sliding in a curve section), as well as the rock properties measured (resistivity horn observed while drilling at a high angle can signify crossing a bed boundary). BHA information gives a record of the bottom hole assembly used to drill a particular section. BHA data can give an indication as to the method to control wellbore deviation (rotary assembly, motor, rotary steerable, etc) as well as the distance to bit for many measurement types (LWD/MWD), and finally the stabilizer/reamer placement which may control wellbore deviation, hole size and a number of other properties. </p>
+<p>This week we will set out to read in these two types of information and utlize the data contained in both to merge into our log files to give a more complete picture of the drilling environment. </p>
+<div class="highlight"><pre><span></span><span class="c1"># Import required libraries &amp; packages</span>
+<span class="kn">from</span> <span class="nn">azure.storage.blob</span> <span class="kn">import</span> <span class="n">BlockBlobService</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">xml.etree.ElementTree</span> <span class="k">as</span> <span class="nn">ET</span>
+<span class="kn">from</span> <span class="nn">bs4</span> <span class="kn">import</span> <span class="n">BeautifulSoup</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+<span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="o">%</span><span class="n">matplotlib</span> <span class="n">inline</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">glob</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="c1"># List the account name and sas_token *** I have removed the SAS token in order to allow the user to register properly thorugh Equinor&#39;s data portal</span>
+<span class="n">azure_storage_account_name</span> <span class="o">=</span> <span class="s1">&#39;dataplatformblvolve&#39;</span>
+<span class="n">sas_token</span> <span class="o">=</span> <span class="s1">&#39;sv=2018-03-28&amp;sr=c&amp;sig=yqAsIUqdM4HZx8K7QAksMeyueJ00esylOSHh4RgkQc4%3D&amp;se=2020-05-26T21%3A55%3A41Z&amp;sp=rl&#39;</span>
+
+<span class="c1"># Create a service and use the SAS </span>
+<span class="n">sas_blob_service</span> <span class="o">=</span> <span class="n">BlockBlobService</span><span class="p">(</span> 
+    <span class="n">account_name</span><span class="o">=</span><span class="n">azure_storage_account_name</span><span class="p">,</span> 
+    <span class="n">sas_token</span><span class="o">=</span><span class="n">sas_token</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;WITSML Realtime drilling data/Norway-Statoil-NO 15_$47$_9-F-4/1&#39;</span>
+
+<span class="n">blob</span> <span class="o">=</span> <span class="n">sas_blob_service</span><span class="o">.</span><span class="n">list_blobs</span><span class="p">(</span><span class="s1">&#39;pub&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">blob</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="mi">10</span><span class="p">:</span>
+        <span class="k">break</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">WITSML Realtime drilling data/Norway-Statoil-NO 15_$47$_9-F-4/1/_wellboreInfo/NO 15_$47$_9-F-4 (dbffce7a-74d8-4443-8b7e-b937e5fede95)(NULL).xml</span>
+<span class="err">WITSML Realtime drilling data/Norway-Statoil-NO 15_$47$_9-F-4/1/bhaRun/1.xml</span>
+<span class="err">WITSML Realtime drilling data/Norway-Statoil-NO 15_$47$_9-F-4/1/bhaRun/2.xml</span>
+<span class="err">WITSML Realtime drilling data/Norway-Statoil-NO 15_$47$_9-F-4/1/bhaRun/3.xml</span>
+<span class="err">WITSML Realtime drilling data/Norway-Statoil-NO 15_$47$_9-F-4/1/bhaRun/4.xml</span>
+<span class="err">WITSML Realtime drilling data/Norway-Statoil-NO 15_$47$_9-F-4/1/bhaRun/MetaDataFileInfo.txt</span>
+<span class="err">WITSML Realtime drilling data/Norway-Statoil-NO 15_$47$_9-F-4/1/log/1/1/1/00001.xml</span>
+<span class="err">WITSML Realtime drilling data/Norway-Statoil-NO 15_$47$_9-F-4/1/log/1/1/1/00002.xml</span>
+<span class="err">WITSML Realtime drilling data/Norway-Statoil-NO 15_$47$_9-F-4/1/log/1/1/1/00003.xml</span>
+<span class="err">WITSML Realtime drilling data/Norway-Statoil-NO 15_$47$_9-F-4/1/log/1/1/1/00004.xml</span>
+<span class="err">WITSML Realtime drilling data/Norway-Statoil-NO 15_$47$_9-F-4/1/log/1/1/1/00005.xml</span>
+<span class="err">WITSML Realtime drilling data/Norway-Statoil-NO 15_$47$_9-F-4/1/log/1/1/1/00006.xml</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">units</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    The intent of this function is to convert units from metric to US</span>
+
+<span class="sd">    Input: df - pandas dataframe</span>
+<span class="sd">    Output: df - pandas dataframe with columns transformed based on current units</span>
+
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">corr_columns</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">corr_columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">col</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; - &#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="c1"># Analyze column units and transform if appropriate</span>
+        <span class="c1"># Future work will use dictionary rather than series of if statements</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">col</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; - &#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;m&#39;</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">col</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; - &#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;m/h&#39;</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">col</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; - &#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;m/s2&#39;</span><span class="p">):</span>
+            <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span> <span class="o">*</span> <span class="mf">3.28084</span>
+        <span class="k">if</span> <span class="n">col</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; - &#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;degC&#39;</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span> <span class="o">*</span> <span class="mi">9</span><span class="o">/</span><span class="mi">5</span><span class="p">)</span> <span class="o">+</span> <span class="mi">32</span>
+        <span class="k">if</span> <span class="n">col</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; - &#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;m3&#39;</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span> <span class="o">*</span> <span class="mf">6.289814</span>
+        <span class="k">if</span> <span class="n">col</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; - &#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;kkgf&#39;</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span> <span class="o">*</span> <span class="mf">2.2</span>
+        <span class="k">if</span> <span class="n">col</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; - &#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;kPa&#39;</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.145038</span>
+        <span class="k">if</span> <span class="n">col</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; - &#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;L/min&#39;</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.264172875</span>
+        <span class="k">if</span> <span class="n">col</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; - &#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;g/cm3&#39;</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span> <span class="o">*</span> <span class="mf">8.3454</span>
+        <span class="k">if</span> <span class="n">col</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; - &#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;kN.m&#39;</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.737562</span>
+
+    <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">corr_columns</span>
+    <span class="k">return</span> <span class="n">df</span>
+</pre></div>
+
+
+<h3>BHA</h3>
+<p>The code above was replicated from prior weeks. Below we will take an example BHA WITSML file and parse appropriately. In the folder we are working out of, the BHA's only contain a single tubular compponent listed under the 'tubular' tag - see below for a list of the tags. </p>
+<div class="highlight"><pre><span></span><span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;WITSML Realtime drilling data/Norway-Statoil-NO 15_$47$_9-F-4/1/bhaRun/3.xml&#39;</span>
+<span class="n">blob</span> <span class="o">=</span> <span class="n">sas_blob_service</span><span class="o">.</span><span class="n">get_blob_to_text</span><span class="p">(</span><span class="s1">&#39;pub&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+<span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">blob</span><span class="o">.</span><span class="n">content</span><span class="p">,</span> <span class="s1">&#39;xml&#39;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">tag</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">tag</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;tubular&#39;</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">tag</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">bhaRuns</span>
+<span class="err">bhaRun</span>
+<span class="err">nameWell</span>
+<span class="err">nameWellbore</span>
+<span class="err">name</span>
+<span class="err">tubular</span>
+<span class="err">15/9-F-4_16VIRG33</span>
+<span class="err">dTimStart</span>
+<span class="err">numStringRun</span>
+<span class="err">commonData</span>
+<span class="err">sourceName</span>
+<span class="err">dTimCreation</span>
+<span class="err">dTimLastChange</span>
+<span class="err">itemState</span>
+<span class="err">comments</span>
+<span class="err">priv_userLastChange</span>
+<span class="err">priv_ipLastChange</span>
+<span class="err">priv_userOwner</span>
+<span class="err">priv_ipOwner</span>
+<span class="err">priv_dTimReceived</span>
+</pre></div>
+
+
+<p>Above we printed all of the tags contained in teh BHA WITSML file - most of which contain the logging information for the creation of the file. There is however a couple of notable tags that will be required to combine the BHA information with the logging data: bhaRun, nameWell, and tubular. </p>
+<ul>
+<li>bhaRun - contains the uid (unique indentification) for the BHA run - which will give the user the start/stop time and depth for the run. Using this information the BHA contents can be appended to the logging data approrpriately. </li>
+<li>nameWell - name of the well - given the folder/file structure of the Volve dataset, this is also contained in the folder naming - however when combining multiple wells it is essential to keep track of this data</li>
+<li>tubular - a reference to the tubular catalog for the well listed under the 'tubular' directory. We will use this infomration in order to look up the correct tubular. </li>
+</ul>
+<p>As was printed above, the name of the tubular for this particular bha run is 16VIRG33 - we will use this to get the data associated with this tubular. If the BHA contained more detailed information - additional tubulars would be present here as well. Lets load the tubular file and inspect the qualities of that component. </p>
+<div class="highlight"><pre><span></span><span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;WITSML Realtime drilling data/Norway-Statoil-NO 15_$47$_9-F-4/1/tubular/1.xml&#39;</span>
+<span class="n">blob</span> <span class="o">=</span> <span class="n">sas_blob_service</span><span class="o">.</span><span class="n">get_blob_to_text</span><span class="p">(</span><span class="s1">&#39;pub&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+<span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">blob</span><span class="o">.</span><span class="n">content</span><span class="p">,</span> <span class="s1">&#39;xml&#39;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">tag</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;: &#39;</span> <span class="o">+</span> <span class="n">tag</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="n">tubulars</span><span class="o">:</span> <span class="n">NO</span> <span class="mi">15</span><span class="sr">/9-F-4NO 15/9-F-415/</span><span class="mi">9</span><span class="o">-</span><span class="n">F</span><span class="o">-</span><span class="mi">4</span><span class="n">_16VIRG33drillingdrill</span> <span class="n">pipe20</span><span class="o">.</span><span class="mf">1213612000001770.13970000000020456240</span><span class="o">.</span><span class="mi">130</span><span class="n">unknownBHIDPDrill</span> <span class="n">pipetubing10</span><span class="o">.</span><span class="mf">157480000000230.17780000000026205411</span><span class="o">.</span><span class="mi">810</span><span class="n">unknownBHITbgTubingBaker</span> <span class="n">Hughes2016</span><span class="o">-</span><span class="mi">10</span><span class="o">-</span><span class="mi">05</span><span class="n">T00</span><span class="o">:</span><span class="mi">24</span><span class="o">:</span><span class="mf">47.761</span><span class="n">Z2016</span><span class="o">-</span><span class="mi">10</span><span class="o">-</span><span class="mi">05</span><span class="n">T00</span><span class="o">:</span><span class="mi">24</span><span class="o">:</span><span class="mf">47.761</span><span class="n">Zactualsc</span><span class="o">-</span><span class="n">sync</span><span class="o">-</span><span class="n">bhi143</span><span class="o">.</span><span class="mf">97.229</span><span class="o">.</span><span class="mi">42016</span><span class="o">-</span><span class="mi">10</span><span class="o">-</span><span class="mi">05</span><span class="n">T00</span><span class="o">:</span><span class="mi">24</span><span class="o">:</span><span class="mf">47.761</span><span class="n">Z</span>
+<span class="n">tubular</span><span class="o">:</span> <span class="n">NO</span> <span class="mi">15</span><span class="sr">/9-F-4NO 15/9-F-415/</span><span class="mi">9</span><span class="o">-</span><span class="n">F</span><span class="o">-</span><span class="mi">4</span><span class="n">_16VIRG33drillingdrill</span> <span class="n">pipe20</span><span class="o">.</span><span class="mf">1213612000001770.13970000000020456240</span><span class="o">.</span><span class="mi">130</span><span class="n">unknownBHIDPDrill</span> <span class="n">pipetubing10</span><span class="o">.</span><span class="mf">157480000000230.17780000000026205411</span><span class="o">.</span><span class="mi">810</span><span class="n">unknownBHITbgTubingBaker</span> <span class="n">Hughes2016</span><span class="o">-</span><span class="mi">10</span><span class="o">-</span><span class="mi">05</span><span class="n">T00</span><span class="o">:</span><span class="mi">24</span><span class="o">:</span><span class="mf">47.761</span><span class="n">Z2016</span><span class="o">-</span><span class="mi">10</span><span class="o">-</span><span class="mi">05</span><span class="n">T00</span><span class="o">:</span><span class="mi">24</span><span class="o">:</span><span class="mf">47.761</span><span class="n">Zactualsc</span><span class="o">-</span><span class="n">sync</span><span class="o">-</span><span class="n">bhi143</span><span class="o">.</span><span class="mf">97.229</span><span class="o">.</span><span class="mi">42016</span><span class="o">-</span><span class="mi">10</span><span class="o">-</span><span class="mi">05</span><span class="n">T00</span><span class="o">:</span><span class="mi">24</span><span class="o">:</span><span class="mf">47.761</span><span class="n">Z</span>
+<span class="n">nameWell</span><span class="o">:</span> <span class="n">NO</span> <span class="mi">15</span><span class="o">/</span><span class="mi">9</span><span class="o">-</span><span class="n">F</span><span class="o">-</span><span class="mi">4</span>
+<span class="n">nameWellbore</span><span class="o">:</span> <span class="n">NO</span> <span class="mi">15</span><span class="o">/</span><span class="mi">9</span><span class="o">-</span><span class="n">F</span><span class="o">-</span><span class="mi">4</span>
+<span class="n">name</span><span class="o">:</span> <span class="mi">15</span><span class="o">/</span><span class="mi">9</span><span class="o">-</span><span class="n">F</span><span class="o">-</span><span class="mi">4</span><span class="n">_16VIRG33</span>
+<span class="n">typeTubularAssy</span><span class="o">:</span> <span class="n">drilling</span>
+<span class="n">tubularComponent</span><span class="o">:</span> <span class="n">drill</span> <span class="n">pipe20</span><span class="o">.</span><span class="mf">1213612000001770.13970000000020456240</span><span class="o">.</span><span class="mi">130</span><span class="n">unknownBHIDPDrill</span> <span class="n">pipe</span>
+<span class="n">typeTubularComp</span><span class="o">:</span> <span class="n">drill</span> <span class="n">pipe</span>
+<span class="n">sequence</span><span class="o">:</span> <span class="mi">2</span>
+<span class="n">id</span><span class="o">:</span> <span class="mf">0.121361200000177</span>
+<span class="n">od</span><span class="o">:</span> <span class="mf">0.139700000000204</span>
+<span class="n">len</span><span class="o">:</span> <span class="mi">562</span>
+<span class="n">lenJointAv</span><span class="o">:</span> <span class="mf">40.1</span>
+<span class="n">numJointStand</span><span class="o">:</span> <span class="mi">3</span>
+<span class="n">tensYield</span><span class="o">:</span> <span class="mi">0</span>
+<span class="n">configCon</span><span class="o">:</span> <span class="n">unknown</span>
+<span class="n">vendor</span><span class="o">:</span> <span class="n">BHI</span>
+<span class="n">customData</span><span class="o">:</span> <span class="n">DPDrill</span> <span class="n">pipe</span>
+<span class="n">mwdComponent</span><span class="o">:</span> <span class="n">DPDrill</span> <span class="n">pipe</span>
+<span class="n">shortName</span><span class="o">:</span> <span class="n">DP</span>
+<span class="n">fullName</span><span class="o">:</span> <span class="n">Drill</span> <span class="n">pipe</span>
+<span class="n">tubularComponent</span><span class="o">:</span> <span class="n">tubing10</span><span class="o">.</span><span class="mf">157480000000230.17780000000026205411</span><span class="o">.</span><span class="mi">810</span><span class="n">unknownBHITbgTubing</span>
+<span class="n">typeTubularComp</span><span class="o">:</span> <span class="n">tubing</span>
+<span class="n">sequence</span><span class="o">:</span> <span class="mi">1</span>
+<span class="n">id</span><span class="o">:</span> <span class="mf">0.15748000000023</span>
+<span class="n">od</span><span class="o">:</span> <span class="mf">0.17780000000026</span>
+<span class="n">len</span><span class="o">:</span> <span class="mi">2054</span>
+<span class="n">lenJointAv</span><span class="o">:</span> <span class="mf">11.8</span>
+<span class="n">numJointStand</span><span class="o">:</span> <span class="mi">1</span>
+<span class="n">tensYield</span><span class="o">:</span> <span class="mi">0</span>
+<span class="n">configCon</span><span class="o">:</span> <span class="n">unknown</span>
+<span class="n">vendor</span><span class="o">:</span> <span class="n">BHI</span>
+<span class="n">customData</span><span class="o">:</span> <span class="n">TbgTubing</span>
+<span class="n">mwdComponent</span><span class="o">:</span> <span class="n">TbgTubing</span>
+<span class="n">shortName</span><span class="o">:</span> <span class="n">Tbg</span>
+<span class="n">fullName</span><span class="o">:</span> <span class="n">Tubing</span>
+<span class="n">commonData</span><span class="o">:</span> <span class="n">Baker</span> <span class="n">Hughes2016</span><span class="o">-</span><span class="mi">10</span><span class="o">-</span><span class="mi">05</span><span class="n">T00</span><span class="o">:</span><span class="mi">24</span><span class="o">:</span><span class="mf">47.761</span><span class="n">Z2016</span><span class="o">-</span><span class="mi">10</span><span class="o">-</span><span class="mi">05</span><span class="n">T00</span><span class="o">:</span><span class="mi">24</span><span class="o">:</span><span class="mf">47.761</span><span class="n">Zactualsc</span><span class="o">-</span><span class="n">sync</span><span class="o">-</span><span class="n">bhi143</span><span class="o">.</span><span class="mf">97.229</span><span class="o">.</span><span class="mi">42016</span><span class="o">-</span><span class="mi">10</span><span class="o">-</span><span class="mi">05</span><span class="n">T00</span><span class="o">:</span><span class="mi">24</span><span class="o">:</span><span class="mf">47.761</span><span class="n">Z</span>
+<span class="n">sourceName</span><span class="o">:</span> <span class="n">Baker</span> <span class="n">Hughes</span>
+<span class="n">dTimCreation</span><span class="o">:</span> <span class="mi">2016</span><span class="o">-</span><span class="mi">10</span><span class="o">-</span><span class="mi">05</span><span class="n">T00</span><span class="o">:</span><span class="mi">24</span><span class="o">:</span><span class="mf">47.761</span><span class="n">Z</span>
+<span class="n">dTimLastChange</span><span class="o">:</span> <span class="mi">2016</span><span class="o">-</span><span class="mi">10</span><span class="o">-</span><span class="mi">05</span><span class="n">T00</span><span class="o">:</span><span class="mi">24</span><span class="o">:</span><span class="mf">47.761</span><span class="n">Z</span>
+<span class="n">itemState</span><span class="o">:</span> <span class="n">actual</span>
+<span class="n">priv_userOwner</span><span class="o">:</span> <span class="n">sc</span><span class="o">-</span><span class="n">sync</span><span class="o">-</span><span class="n">bhi</span>
+<span class="n">priv_ipOwner</span><span class="o">:</span> <span class="mf">143.97</span><span class="o">.</span><span class="mf">229.4</span>
+<span class="n">priv_dTimReceived</span><span class="o">:</span> <span class="mi">2016</span><span class="o">-</span><span class="mi">10</span><span class="o">-</span><span class="mi">05</span><span class="n">T00</span><span class="o">:</span><span class="mi">24</span><span class="o">:</span><span class="mf">47.761</span><span class="n">Z</span>
+</pre></div>
+
+
+<p>Inspecting the tubular data, there appears to be two kinds of tubulars under the 16VIRG33 tubular identification: 
+- Drill Pipe 
+- Tubing</p>
+<p>It's possible this was a tubing while drilling run, or it may be two BHA's one for drilling another for casing - however under the tubular node, for typeTubularAssy we can see 'drilling' meaning most likely this BHA was intended for drilling. For each tubular componnent we can see some key peices of information - for instance under drill pipe we can see: 
+- OD/ID information (OD listed as 0.1397m or 5.5")
+- Total length as well as average join length and number of joints per stand </p>
+<p>In order to meaningfully link the tubular components back to the logs we need the wellbore geometry data to link the tubular/BHA name to the sections drilled. Below we inspect the WBG file for this run: </p>
+<div class="highlight"><pre><span></span><span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;WITSML Realtime drilling data/Norway-Statoil-NO 15_$47$_9-F-4/1/wbGeometry/1.xml&#39;</span>
+<span class="n">blob</span> <span class="o">=</span> <span class="n">sas_blob_service</span><span class="o">.</span><span class="n">get_blob_to_text</span><span class="p">(</span><span class="s1">&#39;pub&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+<span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">blob</span><span class="o">.</span><span class="n">content</span><span class="p">,</span> <span class="s1">&#39;xml&#39;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">tag</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;: &#39;</span> <span class="o">+</span> <span class="n">tag</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="n">wbGeometrys</span><span class="o">:</span> <span class="n">NO</span> <span class="mi">15</span><span class="sr">/9-F-4NO 15/9-F-415/</span><span class="mi">9</span><span class="o">-</span><span class="n">F</span><span class="o">-</span><span class="mi">42016</span><span class="o">-</span><span class="mi">09</span><span class="o">-</span><span class="mi">30</span><span class="n">T10</span><span class="o">:</span><span class="mi">05</span><span class="o">:</span><span class="mf">00.000</span><span class="n">Z3510091casing593263059326300</span><span class="o">.</span><span class="mf">2167890000003170.244475000000357</span><span class="n">riser0200200</span><span class="o">.</span><span class="mf">5080000000007420.558800000000816</span><span class="n">open</span> <span class="n">hole26303510263035100</span><span class="o">.</span><span class="mi">17780000000026</span><span class="n">casing20593205930</span><span class="o">.</span><span class="mf">2453640000003580.273050000000399</span><span class="n">Baker</span> <span class="n">Hughes2016</span><span class="o">-</span><span class="mi">09</span><span class="o">-</span><span class="mi">30</span><span class="n">T11</span><span class="o">:</span><span class="mi">36</span><span class="o">:</span><span class="mf">13.275</span><span class="n">Z2016</span><span class="o">-</span><span class="mi">09</span><span class="o">-</span><span class="mi">30</span><span class="n">T18</span><span class="o">:</span><span class="mi">51</span><span class="o">:</span><span class="mf">17.766</span><span class="n">Zactualsc</span><span class="o">-</span><span class="n">sync</span><span class="o">-</span><span class="n">bhi143</span><span class="o">.</span><span class="mf">97.229</span><span class="o">.</span><span class="mi">4</span><span class="n">statfeedstg10</span><span class="o">.</span><span class="mf">166.14</span><span class="o">.</span><span class="mi">62016</span><span class="o">-</span><span class="mi">09</span><span class="o">-</span><span class="mi">30</span><span class="n">T18</span><span class="o">:</span><span class="mi">47</span><span class="o">:</span><span class="mf">26.377</span><span class="n">Z</span>
+<span class="n">wbGeometry</span><span class="o">:</span> <span class="n">NO</span> <span class="mi">15</span><span class="sr">/9-F-4NO 15/9-F-415/</span><span class="mi">9</span><span class="o">-</span><span class="n">F</span><span class="o">-</span><span class="mi">42016</span><span class="o">-</span><span class="mi">09</span><span class="o">-</span><span class="mi">30</span><span class="n">T10</span><span class="o">:</span><span class="mi">05</span><span class="o">:</span><span class="mf">00.000</span><span class="n">Z3510091casing593263059326300</span><span class="o">.</span><span class="mf">2167890000003170.244475000000357</span><span class="n">riser0200200</span><span class="o">.</span><span class="mf">5080000000007420.558800000000816</span><span class="n">open</span> <span class="n">hole26303510263035100</span><span class="o">.</span><span class="mi">17780000000026</span><span class="n">casing20593205930</span><span class="o">.</span><span class="mf">2453640000003580.273050000000399</span><span class="n">Baker</span> <span class="n">Hughes2016</span><span class="o">-</span><span class="mi">09</span><span class="o">-</span><span class="mi">30</span><span class="n">T11</span><span class="o">:</span><span class="mi">36</span><span class="o">:</span><span class="mf">13.275</span><span class="n">Z2016</span><span class="o">-</span><span class="mi">09</span><span class="o">-</span><span class="mi">30</span><span class="n">T18</span><span class="o">:</span><span class="mi">51</span><span class="o">:</span><span class="mf">17.766</span><span class="n">Zactualsc</span><span class="o">-</span><span class="n">sync</span><span class="o">-</span><span class="n">bhi143</span><span class="o">.</span><span class="mf">97.229</span><span class="o">.</span><span class="mi">4</span><span class="n">statfeedstg10</span><span class="o">.</span><span class="mf">166.14</span><span class="o">.</span><span class="mi">62016</span><span class="o">-</span><span class="mi">09</span><span class="o">-</span><span class="mi">30</span><span class="n">T18</span><span class="o">:</span><span class="mi">47</span><span class="o">:</span><span class="mf">26.377</span><span class="n">Z</span>
+<span class="n">nameWell</span><span class="o">:</span> <span class="n">NO</span> <span class="mi">15</span><span class="o">/</span><span class="mi">9</span><span class="o">-</span><span class="n">F</span><span class="o">-</span><span class="mi">4</span>
+<span class="n">nameWellbore</span><span class="o">:</span> <span class="n">NO</span> <span class="mi">15</span><span class="o">/</span><span class="mi">9</span><span class="o">-</span><span class="n">F</span><span class="o">-</span><span class="mi">4</span>
+<span class="n">name</span><span class="o">:</span> <span class="mi">15</span><span class="o">/</span><span class="mi">9</span><span class="o">-</span><span class="n">F</span><span class="o">-</span><span class="mi">4</span>
+<span class="n">dTimReport</span><span class="o">:</span> <span class="mi">2016</span><span class="o">-</span><span class="mi">09</span><span class="o">-</span><span class="mi">30</span><span class="n">T10</span><span class="o">:</span><span class="mi">05</span><span class="o">:</span><span class="mf">00.000</span><span class="n">Z</span>
+<span class="n">mdBottom</span><span class="o">:</span> <span class="mi">3510</span>
+<span class="n">gapAir</span><span class="o">:</span> <span class="mi">0</span>
+<span class="n">depthWaterMean</span><span class="o">:</span> <span class="mi">91</span>
+<span class="n">wbGeometrySection</span><span class="o">:</span> <span class="n">casing593263059326300</span><span class="o">.</span><span class="mf">2167890000003170.244475000000357</span>
+<span class="n">typeHoleCasing</span><span class="o">:</span> <span class="n">casing</span>
+<span class="n">mdTop</span><span class="o">:</span> <span class="mi">593</span>
+<span class="n">mdBottom</span><span class="o">:</span> <span class="mi">2630</span>
+<span class="n">tvdTop</span><span class="o">:</span> <span class="mi">593</span>
+<span class="n">tvdBottom</span><span class="o">:</span> <span class="mi">2630</span>
+<span class="n">idSection</span><span class="o">:</span> <span class="mf">0.216789000000317</span>
+<span class="n">odSection</span><span class="o">:</span> <span class="mf">0.244475000000357</span>
+<span class="n">wbGeometrySection</span><span class="o">:</span> <span class="n">riser0200200</span><span class="o">.</span><span class="mf">5080000000007420.558800000000816</span>
+<span class="n">typeHoleCasing</span><span class="o">:</span> <span class="n">riser</span>
+<span class="n">mdTop</span><span class="o">:</span> <span class="mi">0</span>
+<span class="n">mdBottom</span><span class="o">:</span> <span class="mi">20</span>
+<span class="n">tvdTop</span><span class="o">:</span> <span class="mi">0</span>
+<span class="n">tvdBottom</span><span class="o">:</span> <span class="mi">20</span>
+<span class="n">idSection</span><span class="o">:</span> <span class="mf">0.508000000000742</span>
+<span class="n">odSection</span><span class="o">:</span> <span class="mf">0.558800000000816</span>
+<span class="n">wbGeometrySection</span><span class="o">:</span> <span class="n">open</span> <span class="n">hole26303510263035100</span><span class="o">.</span><span class="mi">17780000000026</span>
+<span class="n">typeHoleCasing</span><span class="o">:</span> <span class="n">open</span> <span class="n">hole</span>
+<span class="n">mdTop</span><span class="o">:</span> <span class="mi">2630</span>
+<span class="n">mdBottom</span><span class="o">:</span> <span class="mi">3510</span>
+<span class="n">tvdTop</span><span class="o">:</span> <span class="mi">2630</span>
+<span class="n">tvdBottom</span><span class="o">:</span> <span class="mi">3510</span>
+<span class="n">idSection</span><span class="o">:</span> <span class="mf">0.17780000000026</span>
+<span class="n">wbGeometrySection</span><span class="o">:</span> <span class="n">casing20593205930</span><span class="o">.</span><span class="mf">2453640000003580.273050000000399</span>
+<span class="n">typeHoleCasing</span><span class="o">:</span> <span class="n">casing</span>
+<span class="n">mdTop</span><span class="o">:</span> <span class="mi">20</span>
+<span class="n">mdBottom</span><span class="o">:</span> <span class="mi">593</span>
+<span class="n">tvdTop</span><span class="o">:</span> <span class="mi">20</span>
+<span class="n">tvdBottom</span><span class="o">:</span> <span class="mi">593</span>
+<span class="n">idSection</span><span class="o">:</span> <span class="mf">0.245364000000358</span>
+<span class="n">odSection</span><span class="o">:</span> <span class="mf">0.273050000000399</span>
+<span class="n">commonData</span><span class="o">:</span> <span class="n">Baker</span> <span class="n">Hughes2016</span><span class="o">-</span><span class="mi">09</span><span class="o">-</span><span class="mi">30</span><span class="n">T11</span><span class="o">:</span><span class="mi">36</span><span class="o">:</span><span class="mf">13.275</span><span class="n">Z2016</span><span class="o">-</span><span class="mi">09</span><span class="o">-</span><span class="mi">30</span><span class="n">T18</span><span class="o">:</span><span class="mi">51</span><span class="o">:</span><span class="mf">17.766</span><span class="n">Zactualsc</span><span class="o">-</span><span class="n">sync</span><span class="o">-</span><span class="n">bhi143</span><span class="o">.</span><span class="mf">97.229</span><span class="o">.</span><span class="mi">4</span><span class="n">statfeedstg10</span><span class="o">.</span><span class="mf">166.14</span><span class="o">.</span><span class="mi">62016</span><span class="o">-</span><span class="mi">09</span><span class="o">-</span><span class="mi">30</span><span class="n">T18</span><span class="o">:</span><span class="mi">47</span><span class="o">:</span><span class="mf">26.377</span><span class="n">Z</span>
+<span class="n">sourceName</span><span class="o">:</span> <span class="n">Baker</span> <span class="n">Hughes</span>
+<span class="n">dTimCreation</span><span class="o">:</span> <span class="mi">2016</span><span class="o">-</span><span class="mi">09</span><span class="o">-</span><span class="mi">30</span><span class="n">T11</span><span class="o">:</span><span class="mi">36</span><span class="o">:</span><span class="mf">13.275</span><span class="n">Z</span>
+<span class="n">dTimLastChange</span><span class="o">:</span> <span class="mi">2016</span><span class="o">-</span><span class="mi">09</span><span class="o">-</span><span class="mi">30</span><span class="n">T18</span><span class="o">:</span><span class="mi">51</span><span class="o">:</span><span class="mf">17.766</span><span class="n">Z</span>
+<span class="n">itemState</span><span class="o">:</span> <span class="n">actual</span>
+<span class="n">priv_userLastChange</span><span class="o">:</span> <span class="n">sc</span><span class="o">-</span><span class="n">sync</span><span class="o">-</span><span class="n">bhi</span>
+<span class="n">priv_ipLastChange</span><span class="o">:</span> <span class="mf">143.97</span><span class="o">.</span><span class="mf">229.4</span>
+<span class="n">priv_userOwner</span><span class="o">:</span> <span class="n">statfeedstg</span>
+<span class="n">priv_ipOwner</span><span class="o">:</span> <span class="mf">10.166</span><span class="o">.</span><span class="mf">14.6</span>
+<span class="n">priv_dTimReceived</span><span class="o">:</span> <span class="mi">2016</span><span class="o">-</span><span class="mi">09</span><span class="o">-</span><span class="mi">30</span><span class="n">T18</span><span class="o">:</span><span class="mi">47</span><span class="o">:</span><span class="mf">26.377</span><span class="n">Z</span>
+</pre></div>
+
+
+<p>Putting our BHA/Tubular/WBG inspection workflow together, we can see that the wbGeometrySection has a uid linked to the bhaRun which is also linked to the tubular uid. In this example we only had drill pipe in the BHA - therefore the benefit gained from BHA will be limited - because the BHA is incomplete (most likely since all BHA's need a bit). We can use the top and bottom TVD and md information to better understand where this run took place in the well construction phase and then incoroporate key BHA information into our logging dataframe (things such as bit size (could also directly be read from the WBG file), number of stabilizers, BHA type (rotary, motor, RSS), as well as any number of other key pieces of information. </p>
+<h3>Trajectory Incorporation</h3>
+<p>Next we will begin to inspect the trajectory WITSML files in order to link logging data to trajectory information. First we will inspect the trajectory file: </p>
+<div class="highlight"><pre><span></span><span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;WITSML Realtime drilling data/Norway-Statoil-NO 15_$47$_9-F-4/1/trajectory/1.xml&#39;</span>
+<span class="n">blob</span> <span class="o">=</span> <span class="n">sas_blob_service</span><span class="o">.</span><span class="n">get_blob_to_text</span><span class="p">(</span><span class="s1">&#39;pub&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+<span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">blob</span><span class="o">.</span><span class="n">content</span><span class="p">,</span> <span class="s1">&#39;xml&#39;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s1">&#39;trajectory&#39;</span><span class="p">):</span>
+    <span class="k">continue</span>
+<span class="n">tag</span><span class="o">.</span><span class="n">findChildren</span><span class="p">()[:</span><span class="mi">16</span><span class="p">]</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span>[<span class="nt">&lt;nameWell&gt;</span>NO 15/9-F-4<span class="nt">&lt;/nameWell&gt;</span>,
+ <span class="nt">&lt;nameWellbore&gt;</span>NO 15/9-F-4<span class="nt">&lt;/nameWellbore&gt;</span>,
+ <span class="nt">&lt;name&gt;</span>MWD-15/9-F-4<span class="nt">&lt;/name&gt;</span>,
+ <span class="nt">&lt;objectGrowing&gt;</span>false<span class="nt">&lt;/objectGrowing&gt;</span>,
+ <span class="nt">&lt;dTimTrajStart&gt;</span>2016-09-30T09:59:00.000Z<span class="nt">&lt;/dTimTrajStart&gt;</span>,
+ <span class="nt">&lt;dTimTrajEnd&gt;</span>2016-09-30T10:16:10.000Z<span class="nt">&lt;/dTimTrajEnd&gt;</span>,
+ <span class="nt">&lt;mdMn</span> <span class="na">uom=</span><span class="s">&quot;m&quot;</span><span class="nt">&gt;</span>0<span class="nt">&lt;/mdMn&gt;</span>,
+ <span class="nt">&lt;mdMx</span> <span class="na">uom=</span><span class="s">&quot;m&quot;</span><span class="nt">&gt;</span>3510<span class="nt">&lt;/mdMx&gt;</span>,
+ <span class="nt">&lt;magDeclUsed</span> <span class="na">uom=</span><span class="s">&quot;rad&quot;</span><span class="nt">&gt;</span>0<span class="nt">&lt;/magDeclUsed&gt;</span>,
+ <span class="nt">&lt;gridCorUsed</span> <span class="na">uom=</span><span class="s">&quot;rad&quot;</span><span class="nt">&gt;</span>0<span class="nt">&lt;/gridCorUsed&gt;</span>,
+ <span class="nt">&lt;aziVertSect</span> <span class="na">uom=</span><span class="s">&quot;rad&quot;</span><span class="nt">&gt;</span>0<span class="nt">&lt;/aziVertSect&gt;</span>,
+ <span class="nt">&lt;dispNsVertSectOrig</span> <span class="na">uom=</span><span class="s">&quot;m&quot;</span><span class="nt">&gt;</span>0<span class="nt">&lt;/dispNsVertSectOrig&gt;</span>,
+ <span class="nt">&lt;dispEwVertSectOrig</span> <span class="na">uom=</span><span class="s">&quot;m&quot;</span><span class="nt">&gt;</span>0<span class="nt">&lt;/dispEwVertSectOrig&gt;</span>,
+ <span class="nt">&lt;aziRef&gt;</span>true north<span class="nt">&lt;/aziRef&gt;</span>,
+ <span class="nt">&lt;trajectoryStation</span> <span class="na">uid=</span><span class="s">&quot;5VIRG33_TIE_POINT&quot;</span><span class="nt">&gt;&lt;dTimStn&gt;</span>2016-09-30T09:59:00.000Z<span class="nt">&lt;/dTimStn&gt;&lt;typeTrajStation&gt;</span>tie in point<span class="nt">&lt;/typeTrajStation&gt;&lt;md</span> <span class="na">uom=</span><span class="s">&quot;m&quot;</span><span class="nt">&gt;</span>0<span class="nt">&lt;/md&gt;&lt;tvd</span> <span class="na">uom=</span><span class="s">&quot;m&quot;</span><span class="nt">&gt;</span>0<span class="nt">&lt;/tvd&gt;&lt;incl</span> <span class="na">uom=</span><span class="s">&quot;rad&quot;</span><span class="nt">&gt;</span>0<span class="nt">&lt;/incl&gt;&lt;azi</span> <span class="na">uom=</span><span class="s">&quot;rad&quot;</span><span class="nt">&gt;</span>0<span class="nt">&lt;/azi&gt;&lt;dispNs</span> <span class="na">uom=</span><span class="s">&quot;m&quot;</span><span class="nt">&gt;</span>0<span class="nt">&lt;/dispNs&gt;&lt;dispEw</span> <span class="na">uom=</span><span class="s">&quot;m&quot;</span><span class="nt">&gt;</span>0<span class="nt">&lt;/dispEw&gt;&lt;vertSect</span> <span class="na">uom=</span><span class="s">&quot;m&quot;</span><span class="nt">&gt;</span>0<span class="nt">&lt;/vertSect&gt;&lt;dls</span> <span class="na">uom=</span><span class="s">&quot;rad/m&quot;</span><span class="nt">&gt;</span>0<span class="nt">&lt;/dls&gt;&lt;commonData&gt;&lt;sourceName&gt;</span>Baker Hughes<span class="nt">&lt;/sourceName&gt;&lt;dTimCreation&gt;</span>2016-09-30T11:36:15.398Z<span class="nt">&lt;/dTimCreation&gt;&lt;dTimLastChange&gt;</span>2016-09-30T11:36:15.398Z<span class="nt">&lt;/dTimLastChange&gt;&lt;itemState&gt;</span>actual<span class="nt">&lt;/itemState&gt;&lt;/commonData&gt;&lt;/trajectoryStation&gt;</span>,
+ <span class="nt">&lt;dTimStn&gt;</span>2016-09-30T09:59:00.000Z<span class="nt">&lt;/dTimStn&gt;</span>]
+</pre></div>
+
+
+<p>From the header information in the trajectory file we get various parameters for the wellbore, such as azimuth reference, start and end time and depth values, magnetic declination and grid correction. This information is helpful in ensuring the surveys are correctly referenced. Each survey station is then contained in the trajectoryStation node (only the first is printed here for reference). In a trajectory station there are nodes such as MD, Inc, Azi, TVD, N, E, VS. From these measurements the trajectory of the wellbore can be determined. Other features such as DLS, BR, TR, etc can be computed from these survey stations. Below we will read in all survey stations and write them to a pandas dataframe. </p>
+<div class="highlight"><pre><span></span><span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;WITSML Realtime drilling data/Norway-Statoil-NO 15_$47$_9-F-4/1/trajectory/1.xml&#39;</span>
+<span class="n">blob</span> <span class="o">=</span> <span class="n">sas_blob_service</span><span class="o">.</span><span class="n">get_blob_to_text</span><span class="p">(</span><span class="s1">&#39;pub&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+<span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">blob</span><span class="o">.</span><span class="n">content</span><span class="p">,</span> <span class="s1">&#39;xml&#39;</span><span class="p">)</span>
+
+<span class="n">md</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">inc</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">azi</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">tvd</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s1">&#39;trajectoryStation&#39;</span><span class="p">):</span>
+    <span class="n">md</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">tag</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;md&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">)</span> <span class="o">*</span> <span class="mf">3.28084</span><span class="p">)</span>
+    <span class="n">inc</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">tag</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;incl&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">)</span> <span class="o">*</span> <span class="mf">57.2958</span><span class="p">)</span>
+    <span class="n">azi</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">tag</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;azi&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">)</span> <span class="o">*</span> <span class="mf">57.2958</span><span class="p">)</span>
+    <span class="n">tvd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">tag</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;tvd&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">)</span> <span class="o">*</span> <span class="mf">3.28084</span><span class="p">)</span>
+<span class="n">df_survey</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;md&#39;</span><span class="p">:</span> <span class="n">md</span><span class="p">,</span>
+                         <span class="s1">&#39;inc&#39;</span><span class="p">:</span> <span class="n">inc</span><span class="p">,</span>
+                         <span class="s1">&#39;azi&#39;</span><span class="p">:</span> <span class="n">azi</span><span class="p">,</span>
+                         <span class="s1">&#39;tvd&#39;</span><span class="p">:</span> <span class="n">tvd</span><span class="p">})</span>
+<span class="n">df_survey</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>md</th>
+      <th>inc</th>
+      <th>azi</th>
+      <th>tvd</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.000000</td>
+      <td>0.00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2.952756</td>
+      <td>0.00</td>
+      <td>0.000000</td>
+      <td>2.952756</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>604.068245</td>
+      <td>0.10</td>
+      <td>233.250083</td>
+      <td>604.067940</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>736.384528</td>
+      <td>0.16</td>
+      <td>227.580083</td>
+      <td>736.383877</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>868.733652</td>
+      <td>0.84</td>
+      <td>218.680071</td>
+      <td>868.727195</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>For a few other meaniningful meausrements we can add build rate, turn rate and DLS. DLS computation can be quite complex and depends on the method used - most today use the minimum curvature method. The DLS via minimum curvature can be computed: </p>
+<p>\begin{equation<em>}
+DLS = cos^{-1} * [{sin(I_1) * sin(I_2) * cos(A_2-A_1)} + {cos(I_1)</em>cos(I_2)}]
+\end{equation*}</p>
+<p>We will write a helper function for this then step through the pandas dataframe to compute these. Because we need references to two rows, we cannot use the apply function - unfortunately the iterrows is slow - but given the size of the survey file should run fairly quick. </p>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">math</span>
+<span class="k">def</span> <span class="nf">compute_dls</span><span class="p">(</span><span class="n">inc2</span><span class="p">,</span> <span class="n">inc1</span><span class="p">,</span> <span class="n">azi2</span><span class="p">,</span> <span class="n">azi1</span><span class="p">,</span> <span class="n">md2</span><span class="p">,</span> <span class="n">md1</span><span class="p">):</span>
+<span class="c1">#     print(inc2, inc1, azi2, azi1, md2, md1)</span>
+    <span class="n">part1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">inc1</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">inc2</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">azi2</span><span class="o">-</span><span class="n">azi1</span><span class="p">)</span>
+    <span class="n">part2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">inc1</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">inc2</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">arccos</span><span class="p">(</span><span class="n">part1</span> <span class="o">+</span> <span class="n">part2</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span> <span class="o">/</span> <span class="p">(</span><span class="n">md2</span><span class="o">-</span><span class="n">md1</span><span class="p">)</span>
+
+<span class="n">br</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">tr</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">dls</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">df_survey</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+    <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">continue</span> <span class="c1">#because no prior survey to compute dls</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">br</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;inc&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">df_survey</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">x</span><span class="o">-</span><span class="mi">1</span><span class="p">,:][</span><span class="s1">&#39;inc&#39;</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;md&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">df_survey</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">x</span><span class="o">-</span><span class="mi">1</span><span class="p">,:][</span><span class="s1">&#39;md&#39;</span><span class="p">])</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
+        <span class="n">tr</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;azi&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">df_survey</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">x</span><span class="o">-</span><span class="mi">1</span><span class="p">,:][</span><span class="s1">&#39;azi&#39;</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;md&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">df_survey</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">x</span><span class="o">-</span><span class="mi">1</span><span class="p">,:][</span><span class="s1">&#39;md&#39;</span><span class="p">])</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
+        <span class="n">dls</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">compute_dls</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;inc&#39;</span><span class="p">],</span> <span class="n">df_survey</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">x</span><span class="o">-</span><span class="mi">1</span><span class="p">,:][</span><span class="s1">&#39;inc&#39;</span><span class="p">],</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;azi&#39;</span><span class="p">],</span> <span class="n">df_survey</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">x</span><span class="o">-</span><span class="mi">1</span><span class="p">,:][</span><span class="s1">&#39;azi&#39;</span><span class="p">],</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;md&#39;</span><span class="p">],</span> <span class="n">df_survey</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">x</span><span class="o">-</span><span class="mi">1</span><span class="p">,:][</span><span class="s1">&#39;md&#39;</span><span class="p">]))</span>
+
+<span class="n">df_survey</span><span class="p">[</span><span class="s1">&#39;dls&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dls</span>
+<span class="n">df_survey</span><span class="p">[</span><span class="s1">&#39;br&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">br</span>
+<span class="n">df_survey</span><span class="p">[</span><span class="s1">&#39;tr&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tr</span>
+
+<span class="n">df_survey</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>md</th>
+      <th>inc</th>
+      <th>azi</th>
+      <th>tvd</th>
+      <th>dls</th>
+      <th>br</th>
+      <th>tr</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.000000</td>
+      <td>0.00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2.952756</td>
+      <td>0.00</td>
+      <td>0.000000</td>
+      <td>2.952756</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>604.068245</td>
+      <td>0.10</td>
+      <td>233.250083</td>
+      <td>604.067940</td>
+      <td>0.016636</td>
+      <td>0.016636</td>
+      <td>38.802874</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>736.384528</td>
+      <td>0.16</td>
+      <td>227.580083</td>
+      <td>736.383877</td>
+      <td>0.073280</td>
+      <td>0.045346</td>
+      <td>-4.285187</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>868.733652</td>
+      <td>0.84</td>
+      <td>218.680071</td>
+      <td>868.727195</td>
+      <td>0.741154</td>
+      <td>0.513793</td>
+      <td>-6.724648</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>We now have our trajectory in a pandas dataframe and have computed DLS, BR and TR. We can now vizualize this trajectory: </p>
+<div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">lineplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s1">&#39;md&#39;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s1">&#39;inc&#39;</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">df_survey</span><span class="p">)</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">lineplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s1">&#39;md&#39;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s1">&#39;azi&#39;</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">df_survey</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Norway-Statoil-NO 15_$47$_9-F-4 Trajectory&#39;</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">Text(0.5, 1.0, &#39;Norway-Statoil-NO 15_$47$_9-F-4 Trajectory&#39;)</span>
+</pre></div>
+
+
+<p align="center">
+  <img width="1000" height="400" src="/images/output_18_1.png">
+</p>
+
+<p>As can be seen - over the course of the well, the inclination built to a ~35deg tangent and then built again towards TD. Azimuth initially started towards the west, turnned south and held the tangent then turned back towards the west. This information will be important to include with the logging information (traejctory may have some impact on the logging data (resistivity log can be affected by how the trajectory crosses a bed boundary - computing TVD from the logging data for rock measurements, etc). </p>
+<p>Below we read in the logging data using the code from before and then merge the two dataframes together to combine. </p>
+<div class="highlight"><pre><span></span><span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;WITSML Realtime drilling data/Norway-Statoil-NO 15_$47$_9-F-4/1/log/1/4/1&#39;</span>
+<span class="n">blob</span> <span class="o">=</span> <span class="n">sas_blob_service</span><span class="o">.</span><span class="n">list_blobs</span><span class="p">(</span><span class="s1">&#39;pub&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+<span class="n">master_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">file</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">blob</span><span class="p">):</span>
+    <span class="n">blob</span> <span class="o">=</span> <span class="n">sas_blob_service</span><span class="o">.</span><span class="n">get_blob_to_text</span><span class="p">(</span><span class="s1">&#39;pub&#39;</span><span class="p">,</span> <span class="n">file</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">blob</span><span class="o">.</span><span class="n">content</span><span class="p">,</span> <span class="s1">&#39;xml&#39;</span><span class="p">)</span>
+    <span class="n">log_names</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s1">&#39;mnemonicList&#39;</span><span class="p">)</span>
+    <span class="n">unit_names</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s1">&#39;unitList&#39;</span><span class="p">)</span>
+    <span class="n">header</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="s1">&#39; - &#39;</span> <span class="o">+</span> <span class="n">j</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">log_names</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">string</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">),</span> <span class="n">unit_names</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">string</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">))]</span> 
+    <span class="n">data</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">header</span><span class="p">,</span> 
+                      <span class="n">data</span><span class="o">=</span><span class="p">[</span><span class="n">row</span><span class="o">.</span><span class="n">string</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">data</span><span class="p">])</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">units</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">master_df</span> <span class="o">=</span> <span class="n">df</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">master_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">master_df</span><span class="p">,</span> <span class="n">df</span><span class="p">],</span> <span class="n">join</span> <span class="o">=</span> <span class="s1">&#39;outer&#39;</span><span class="p">,</span> <span class="n">sort</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+
+<span class="n">master_df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>      
+<span class="n">master_df</span><span class="p">[</span><span class="s1">&#39;Depth&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">master_df</span><span class="p">[</span><span class="s1">&#39;Depth&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">depth_df</span> <span class="o">=</span> <span class="n">master_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">&#39;Depth&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<span class="n">depth_df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>INSLIPS_STATUS</th>
+      <th>EditFlag</th>
+      <th>PIT_TRIPOUT</th>
+      <th>RigActivityCode</th>
+      <th>TRIPINSLIPS</th>
+      <th>TRIPOUTSLIPS</th>
+      <th>TRIPEXPFILL</th>
+      <th>TRIPEXPPVT</th>
+      <th>BLOCKCOMP</th>
+      <th>STANDSTOGO</th>
+      <th>...</th>
+      <th>JOINTSDONE</th>
+      <th>FLOWOUT</th>
+      <th>PIT_TRIPIN</th>
+      <th>TRIPPULL</th>
+      <th>FLOWOUTPC</th>
+      <th>TRIPREAMFLAG</th>
+      <th>TRIPPVT</th>
+      <th>TRIPCFILL</th>
+      <th>HKLD</th>
+      <th>TRIPCEXPFILL</th>
+    </tr>
+    <tr>
+      <th>Depth</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>-131.0</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>39.039450</td>
+      <td>114.0</td>
+      <td>74059.0</td>
+      <td>101.0</td>
+      <td>0.048864</td>
+      <td>22.416786</td>
+      <td>57.117456</td>
+      <td>17.0</td>
+      <td>...</td>
+      <td>10.0</td>
+      <td>0.000621</td>
+      <td>39.039450</td>
+      <td>0.084786</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>39.026784</td>
+      <td>0.0</td>
+      <td>823496.500000</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>-100.0</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>35.531888</td>
+      <td>114.0</td>
+      <td>73922.0</td>
+      <td>101.0</td>
+      <td>0.048864</td>
+      <td>22.416786</td>
+      <td>86.205209</td>
+      <td>17.0</td>
+      <td>...</td>
+      <td>10.0</td>
+      <td>0.000639</td>
+      <td>35.531888</td>
+      <td>0.084786</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>35.462372</td>
+      <td>0.0</td>
+      <td>718690.000000</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>-80.0</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>32.000392</td>
+      <td>17.0</td>
+      <td>33282.0</td>
+      <td>88.0</td>
+      <td>0.032899</td>
+      <td>30.945326</td>
+      <td>89.522444</td>
+      <td>18.0</td>
+      <td>...</td>
+      <td>9.0</td>
+      <td>0.000595</td>
+      <td>32.000392</td>
+      <td>0.332143</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>32.030260</td>
+      <td>0.0</td>
+      <td>815804.300000</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>-77.0</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>31.309085</td>
+      <td>114.0</td>
+      <td>73710.0</td>
+      <td>101.0</td>
+      <td>0.048864</td>
+      <td>22.416786</td>
+      <td>83.469865</td>
+      <td>17.0</td>
+      <td>...</td>
+      <td>10.0</td>
+      <td>0.000641</td>
+      <td>31.309085</td>
+      <td>0.084786</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>31.241690</td>
+      <td>0.0</td>
+      <td>734395.016667</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>-69.0</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>32.754235</td>
+      <td>17.0</td>
+      <td>33282.0</td>
+      <td>58.0</td>
+      <td>0.032899</td>
+      <td>30.945326</td>
+      <td>78.252398</td>
+      <td>18.0</td>
+      <td>...</td>
+      <td>9.0</td>
+      <td>0.000573</td>
+      <td>32.754235</td>
+      <td>0.332143</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>32.796441</td>
+      <td>0.0</td>
+      <td>804265.700000</td>
+      <td>0.0</td>
+    </tr>
+  </tbody>
+</table>
+<p>5 rows × 25 columns</p>
+</div>
+
+<div class="highlight"><pre><span></span><span class="n">df_survey</span> <span class="o">=</span> <span class="n">df_survey</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;md&#39;</span><span class="p">:</span><span class="s1">&#39;Depth&#39;</span><span class="p">})</span>
+<span class="n">df_survey</span><span class="p">[</span><span class="s1">&#39;Depth&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_survey</span><span class="p">[</span><span class="s1">&#39;Depth&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">df_survey</span> <span class="o">=</span> <span class="n">df_survey</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;Depth&#39;</span><span class="p">)</span>
+<span class="n">df_survey</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>inc</th>
+      <th>azi</th>
+      <th>tvd</th>
+      <th>dls</th>
+      <th>br</th>
+      <th>tr</th>
+    </tr>
+    <tr>
+      <th>Depth</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0.0</th>
+      <td>0.00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>3.0</th>
+      <td>0.00</td>
+      <td>0.000000</td>
+      <td>2.952756</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>604.0</th>
+      <td>0.10</td>
+      <td>233.250083</td>
+      <td>604.067940</td>
+      <td>0.016636</td>
+      <td>0.016636</td>
+      <td>38.802874</td>
+    </tr>
+    <tr>
+      <th>736.0</th>
+      <td>0.16</td>
+      <td>227.580083</td>
+      <td>736.383877</td>
+      <td>0.073280</td>
+      <td>0.045346</td>
+      <td>-4.285187</td>
+    </tr>
+    <tr>
+      <th>869.0</th>
+      <td>0.84</td>
+      <td>218.680071</td>
+      <td>868.727195</td>
+      <td>0.741154</td>
+      <td>0.513793</td>
+      <td>-6.724648</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<div class="highlight"><pre><span></span><span class="n">df</span> <span class="o">=</span> <span class="n">depth_df</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">df_survey</span><span class="p">,</span> <span class="n">sort</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+<span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+</pre></div>
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>INSLIPS_STATUS</th>
+      <th>EditFlag</th>
+      <th>PIT_TRIPOUT</th>
+      <th>RigActivityCode</th>
+      <th>TRIPINSLIPS</th>
+      <th>TRIPOUTSLIPS</th>
+      <th>TRIPEXPFILL</th>
+      <th>TRIPEXPPVT</th>
+      <th>BLOCKCOMP</th>
+      <th>STANDSTOGO</th>
+      <th>...</th>
+      <th>TRIPPVT</th>
+      <th>TRIPCFILL</th>
+      <th>HKLD</th>
+      <th>TRIPCEXPFILL</th>
+      <th>inc</th>
+      <th>azi</th>
+      <th>tvd</th>
+      <th>dls</th>
+      <th>br</th>
+      <th>tr</th>
+    </tr>
+    <tr>
+      <th>Depth</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>-131.0</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>39.039450</td>
+      <td>114.0</td>
+      <td>74059.0</td>
+      <td>101.000000</td>
+      <td>0.048864</td>
+      <td>22.416786</td>
+      <td>57.117456</td>
+      <td>17.0</td>
+      <td>...</td>
+      <td>39.026784</td>
+      <td>0.0</td>
+      <td>8.234965e+05</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>-100.0</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>35.531888</td>
+      <td>114.0</td>
+      <td>73922.0</td>
+      <td>101.000000</td>
+      <td>0.048864</td>
+      <td>22.416786</td>
+      <td>86.205209</td>
+      <td>17.0</td>
+      <td>...</td>
+      <td>35.462372</td>
+      <td>0.0</td>
+      <td>7.186900e+05</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>-80.0</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>32.000392</td>
+      <td>17.0</td>
+      <td>33282.0</td>
+      <td>88.000000</td>
+      <td>0.032899</td>
+      <td>30.945326</td>
+      <td>89.522444</td>
+      <td>18.0</td>
+      <td>...</td>
+      <td>32.030260</td>
+      <td>0.0</td>
+      <td>8.158043e+05</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>-77.0</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>31.309085</td>
+      <td>114.0</td>
+      <td>73710.0</td>
+      <td>101.000000</td>
+      <td>0.048864</td>
+      <td>22.416786</td>
+      <td>83.469865</td>
+      <td>17.0</td>
+      <td>...</td>
+      <td>31.241690</td>
+      <td>0.0</td>
+      <td>7.343950e+05</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>-69.0</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>32.754235</td>
+      <td>17.0</td>
+      <td>33282.0</td>
+      <td>58.000000</td>
+      <td>0.032899</td>
+      <td>30.945326</td>
+      <td>78.252398</td>
+      <td>18.0</td>
+      <td>...</td>
+      <td>32.796441</td>
+      <td>0.0</td>
+      <td>8.042657e+05</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>-61.0</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>38.635193</td>
+      <td>106.0</td>
+      <td>787.0</td>
+      <td>3916.826087</td>
+      <td>0.001766</td>
+      <td>36.231095</td>
+      <td>64.410478</td>
+      <td>215.0</td>
+      <td>...</td>
+      <td>38.635027</td>
+      <td>0.0</td>
+      <td>1.535639e+06</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>-60.0</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>26.796568</td>
+      <td>114.0</td>
+      <td>73455.0</td>
+      <td>101.000000</td>
+      <td>0.048864</td>
+      <td>22.416786</td>
+      <td>109.828752</td>
+      <td>17.0</td>
+      <td>...</td>
+      <td>26.768646</td>
+      <td>0.0</td>
+      <td>6.970022e+05</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>-57.0</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>38.731530</td>
+      <td>106.0</td>
+      <td>787.0</td>
+      <td>4967.000000</td>
+      <td>0.001766</td>
+      <td>36.231095</td>
+      <td>60.745048</td>
+      <td>215.0</td>
+      <td>...</td>
+      <td>38.731530</td>
+      <td>0.0</td>
+      <td>1.450412e+06</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>-56.0</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>38.463484</td>
+      <td>106.0</td>
+      <td>787.0</td>
+      <td>1562.056818</td>
+      <td>0.001766</td>
+      <td>36.231095</td>
+      <td>59.007515</td>
+      <td>215.0</td>
+      <td>...</td>
+      <td>38.463568</td>
+      <td>0.0</td>
+      <td>1.533059e+06</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>-55.0</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>33.416163</td>
+      <td>17.0</td>
+      <td>33282.0</td>
+      <td>28.000000</td>
+      <td>0.032899</td>
+      <td>30.945326</td>
+      <td>63.709681</td>
+      <td>18.0</td>
+      <td>...</td>
+      <td>33.449776</td>
+      <td>0.0</td>
+      <td>8.004197e+05</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+  </tbody>
+</table>
+<p>10 rows × 31 columns</p>
+</div>
+
+<p>We now have a dataframe who's values contain both trajectory data as well as logging data. In the example above the logging data principally contained tripping data - trajectory information can be of vital importance for tight spots (may become geomechanically stuck if pulling too hard through a tight spot). It would also be helpful to have complete BHA information as well to understand how stiff the BHA is (stiffer BHA with high DLS will have to be careful when tripping). </p>
+<p>We can inspect the relationship between HKLD and DLS with our combined dataframe. First we will interpolate the survey data (since it is only recorded every 100ft). </p>
+<div class="highlight"><pre><span></span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;inc&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;inc&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">interpolate</span><span class="p">()</span>
+<span class="n">df</span><span class="p">[</span><span class="s1">&#39;azi&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;azi&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">interpolate</span><span class="p">()</span>
+<span class="n">df</span><span class="p">[</span><span class="s1">&#39;tvd&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;tvd&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">interpolate</span><span class="p">()</span>
+<span class="n">df</span><span class="p">[</span><span class="s1">&#39;dls&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;dls&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">ffill</span><span class="p">()</span>
+<span class="n">df</span><span class="p">[</span><span class="s1">&#39;br&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;br&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">ffill</span><span class="p">()</span>
+<span class="n">df</span><span class="p">[</span><span class="s1">&#39;tr&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;tr&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">ffill</span><span class="p">()</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">scatterplot</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="s1">&#39;dls&#39;</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="s1">&#39;HKLD&#39;</span><span class="p">,</span> <span class="n">hue</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">df</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">&lt;matplotlib.axes._subplots.AxesSubplot at 0x2e69df0c588&gt;</span>
+</pre></div>
+
+
+<p align="center">
+  <img width="1000" height="400" src="/images/output_24_1.png">
+</p>
+
+<p>Fortunately, the DLS over the course of this interval was very low, and therefore the relationship between DLS and Hookload or tight spots doesn't exist. These transformations in order to combine multiple sources of information will be especially helpful when looking at multiple wells and trying to understand relationships/etc. We will continue the EDA sections in the next week as well. We chose to use forward fill, vs interopolate for DLS, BR and TR since it's difficult to say how the DLS changed over the course length between surveys (may have been drilling with a motor where most of the DLS occurred during the slide portion, etc). </p>
+<p>To date we have looked at querying Azure Blob Storage, stacking and interpreting WITSML files together into a pandas dataframe - along with some basic transformations. In this week we analyzed the BHA and trajectory WITSML files and incorporated trajectory data into logging data. </p>
+<p>With this stacked data, we can begin to better understand the wellbore construction process.</p></p>
+        </div>
+    </div>
+
+<div class="fh5co-narrow-content">
+<div class="animate-box" data-animate-effect="fadeInLeft">
+    <h2><!-- <i class="icon-speech-bubble"></i>  -->Comments</h2>
+</div>
+<div class="animate-box" data-animate-effect="fadeInLeft">
+    <div id="disqus_thread"></div>
+</div>
+
+<script>
+var disqus_config = function () { 
+  this.language = "english";
+};
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+s.src = 'https://frombitumentobinary.disqus.com/embed.js';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+<noscript><a href="https://disqus.com/?ref_noscript">Please enable JavaScript to view the comments powered by Disqus.</a></noscript>
+<div class="fh5co-footer">
+    <p><small>&copy; 2016 Blend Free HTML5. All Rights Reserved.</span> <span>Designed by <a href="http://freehtml5.co/" target="_blank">FreeHTML5.co</a></span>
+    <br /><span>Pelican Theme by: <a href="https://github.com/claudio-walser/pelican-fh5co-marble" target="_blank">Claudio Walser</a></span></small></p>
+
+</div>                
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="./theme/js/jquery.min.js"></script>
+    <!-- jQuery Easing -->
+    <script src="./theme/js/jquery.easing.1.3.js"></script>
+    <!-- Bootstrap -->
+    <script src="./theme/js/bootstrap.min.js"></script>
+    <!-- Waypoints -->
+    <script src="./theme/js/jquery.waypoints.min.js"></script>
+    <!-- Flexslider -->
+    <script src="./theme/js/jquery.flexslider-min.js"></script>
+
+
+    <!-- MAIN JS -->
+    <script src="./theme/js/main.js"></script>
+    </body>
+</html>
