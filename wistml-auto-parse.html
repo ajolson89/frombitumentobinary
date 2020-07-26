@@ -1,0 +1,835 @@
+
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Utilizing Java</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta name="author" content="Aaron Olson" />
+    <meta name="description" content="Utilize WITSML SDK to parse WITSML file to CSV" />
+    <meta name="keywords" content="WITSML, Pandas, Python, Java, SDK">
+<!-- Facebook and Twitter integration -->
+<meta property="og:site_name" content="From Bitumen to Binary"/>
+<meta property="og:title" content="Utilizing Java"/>
+<meta property="og:description" content="Utilize WITSML SDK to parse WITSML file to CSV"/>
+<meta property="og:url" content="./wistml-auto-parse.html"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2020-07-26 12:00:00-04:00"/>
+<meta property="article:modified_time" content=""/>
+<meta property="article:author" content="./author/aaron-olson.html">
+<meta property="article:section" content="posts"/>
+    <meta property="article:tag" content="WITSML"/>
+    <meta property="article:tag" content="Pandas"/>
+    <meta property="article:tag" content="Python"/>
+    <meta property="article:tag" content="Java"/>
+    <meta property="article:tag" content="SDK"/>
+    <meta property="og:image" content=".//images/blog/java.jpg">
+
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700" rel="stylesheet">
+
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="./theme/css/animate.css">
+    <!-- Icomoon Icon Fonts-->
+    <link rel="stylesheet" href="./theme/css/icomoon.css">
+    <!-- Bootstrap  -->
+    <link rel="stylesheet" href="./theme/css/bootstrap.css">
+    <!-- Flexslider  -->
+    <link rel="stylesheet" href="./theme/css/flexslider.css">
+    <!-- Theme style  -->
+    <link rel="stylesheet" href="./theme/css/style.css">
+    <!-- Custom style  -->
+    <link rel="stylesheet" href="./theme/css/custom.css">
+    <!-- pygments code highlight -->
+    <link rel="stylesheet" href="./theme/css/pygments.css">
+    <!-- tipue search -->
+    <link rel="stylesheet" href="./theme/tipuesearch/css/tipuesearch.css">
+
+    <!-- Modernizr JS -->
+    <script src="./theme/js/modernizr-2.6.2.min.js"></script>
+    <!-- FOR IE9 below -->
+    <!--[if lt IE 9]>
+    <script src="/theme/js/respond.min.js"></script>
+    <![endif]-->
+        <link href="https://frombitumentobinary.com/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="From Bitumen to Binary Atom">
+
+
+
+    </head>
+    <body>
+    <div id="fh5co-page">
+        <a href="#" class="js-fh5co-nav-toggle fh5co-nav-toggle"><i></i></a>
+        <aside id="fh5co-aside" role="complementary" class="border js-fullheight">
+
+            <nav class="fh5co-main-menu" role="navigation">
+            </nav>
+            <div class="clearfix"></div>
+            <h1  id="fh5co-logo">
+                <a href="./index.html">
+                    <img src="\images\Logo.JPG" />
+                </a>
+            </h1>
+            <nav class="fh5co-main-menu" role="navigation">
+<ul>
+    <!-- home link -->
+    <li><a href="./">Home</a></li>
+
+    <!-- page links -->
+            <li><a href="./pages/about.html">About</a></li>
+
+    <!-- categories -->
+        <li><a href="./categories.html">Categories</a></li>
+
+    <!-- tags -->
+        <li><a href="./tags.html">Tags</a></li>
+
+    <!-- additional menu items from config -->
+        <!-- <li class="nav-title">Misc</li> -->
+            <li><a href="./archives.html">Archive</a></li>
+            <li><a href="./contact.html">Contact</a></li>
+
+</ul>
+            </nav>
+
+<ul id="social">
+            <li><a href="https://github.com/ajolson89" alt="Github"><i class="icon-github"></i></a></li>
+
+            <li><a href="https://www.linkedin.com/in/aaron-j-olson/" alt="LinkedIn"><i class="icon-linkedin2"></i></a></li>
+
+</ul>
+        </aside>
+
+        <div id="fh5co-main">
+
+    <div class="fh5co-narrow-content article-content">
+        <h1 class="fh5co-heading-colored">Utilizing Java</h1>
+
+        <div>by
+                <a href="author/aaron-olson.html">Aaron Olson</a> - Sun 26 July 2020
+        </div>
+
+            <div><span>Tags: </span>
+                    <span><a href="./tag/witsml.html">#WITSML</a> </span>
+                    <span><a href="./tag/pandas.html">#Pandas</a> </span>
+                    <span><a href="./tag/python.html">#Python</a> </span>
+                    <span><a href="./tag/java.html">#Java</a> </span>
+                    <span><a href="./tag/sdk.html">#SDK</a> </span>
+            </div>
+
+        <div class="animate-box" data-animate-effect="fadeInLeft">
+            <p class="animate-box" data-animate-effect="fadeInLeft"><p>So far we have utilized a custom defined parser built on the ElementTree library to parse xml files. This has worked well and helped explore the structure of WITSML files - however it is time consuming and can't capture the full nuances and features of the WITSML format. As previously mentioned Energistics maintains the WITSML library and is responsible for new versions of WITSML standards. It is therefore best practice to utilize a package which utilizes the latest WITSML standards. </p>
+<p>Energistics maintains a SDK for developers written in C++ (https://www.energistics.org/standards-devkit/). In addition to this SDK, hashmapinc has also written a WITSML library in Java (https://github.com/hashmapinc/WitsmlObjectsLibrary), which can be used to parse files. This is great as we can utilize Java to promptly convert WITSML files into another format and feed this information into our Python data science work. The github page contains the maven project which can be used to parse WITSML data and is fully documented which is great. </p>
+<p>As a quick reminder - lets connect to the azure data storage and analyze a WITSML file quickly. </p>
+<div class="highlight"><pre><span></span><span class="c1"># Import required libraries &amp; packages</span>
+<span class="kn">from</span> <span class="nn">azure.storage.blob</span> <span class="kn">import</span> <span class="n">BlockBlobService</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">xml.etree.ElementTree</span> <span class="k">as</span> <span class="nn">ET</span>
+<span class="kn">from</span> <span class="nn">bs4</span> <span class="kn">import</span> <span class="n">BeautifulSoup</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+<span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="o">%</span><span class="n">matplotlib</span> <span class="n">inline</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">glob</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="c1"># List the account name and sas_token *** I have removed the SAS token in order to allow the user to register properly thorugh Equinor&#39;s data portal</span>
+<span class="n">azure_storage_account_name</span> <span class="o">=</span> <span class="s1">&#39;datavillagesa&#39;</span>
+<span class="n">sas_token</span> <span class="o">=</span> <span class="s1">&#39;~&#39;</span>
+
+<span class="c1"># Create a service and use the SAS </span>
+<span class="n">sas_blob_service</span> <span class="o">=</span> <span class="n">BlockBlobService</span><span class="p">(</span> 
+    <span class="n">account_name</span><span class="o">=</span><span class="n">azure_storage_account_name</span><span class="p">,</span> 
+    <span class="n">sas_token</span><span class="o">=</span><span class="n">sas_token</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;WITSML Realtime drilling data/Norway-Statoil-NO 15_$47$_9-F-4/1&#39;</span>
+
+<span class="n">blob</span> <span class="o">=</span> <span class="n">sas_blob_service</span><span class="o">.</span><span class="n">list_blobs</span><span class="p">(</span><span class="s1">&#39;volve&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">blob</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="mi">10</span><span class="p">:</span>
+        <span class="k">break</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">WITSML Realtime drilling data/Norway-Statoil-NO 15_$47$_9-F-4/1/_wellboreInfo/NO 15_$47$_9-F-4 (dbffce7a-74d8-4443-8b7e-b937e5fede95)(NULL).xml</span>
+<span class="err">WITSML Realtime drilling data/Norway-Statoil-NO 15_$47$_9-F-4/1/bhaRun/1.xml</span>
+<span class="err">WITSML Realtime drilling data/Norway-Statoil-NO 15_$47$_9-F-4/1/bhaRun/2.xml</span>
+<span class="err">WITSML Realtime drilling data/Norway-Statoil-NO 15_$47$_9-F-4/1/bhaRun/3.xml</span>
+<span class="err">WITSML Realtime drilling data/Norway-Statoil-NO 15_$47$_9-F-4/1/bhaRun/4.xml</span>
+<span class="err">WITSML Realtime drilling data/Norway-Statoil-NO 15_$47$_9-F-4/1/bhaRun/MetaDataFileInfo.txt</span>
+<span class="err">WITSML Realtime drilling data/Norway-Statoil-NO 15_$47$_9-F-4/1/log/1/1/1/00001.xml</span>
+<span class="err">WITSML Realtime drilling data/Norway-Statoil-NO 15_$47$_9-F-4/1/log/1/1/1/00002.xml</span>
+<span class="err">WITSML Realtime drilling data/Norway-Statoil-NO 15_$47$_9-F-4/1/log/1/1/1/00003.xml</span>
+<span class="err">WITSML Realtime drilling data/Norway-Statoil-NO 15_$47$_9-F-4/1/log/1/1/1/00004.xml</span>
+<span class="err">WITSML Realtime drilling data/Norway-Statoil-NO 15_$47$_9-F-4/1/log/1/1/1/00005.xml</span>
+<span class="err">WITSML Realtime drilling data/Norway-Statoil-NO 15_$47$_9-F-4/1/log/1/1/1/00006.xml</span>
+</pre></div>
+
+
+<h3>Connect to log file and inspect element tags</h3>
+<div class="highlight"><pre><span></span><span class="n">WITSML_file</span> <span class="o">=</span> <span class="s1">&#39;WITSML Realtime drilling data/Norway-StatoilHydro-15_$47$_9-F-14/1/log/1/1/1/00001.xml&#39;</span>
+<span class="n">blob</span> <span class="o">=</span> <span class="n">sas_blob_service</span><span class="o">.</span><span class="n">get_blob_to_text</span><span class="p">(</span><span class="s1">&#39;volve&#39;</span><span class="p">,</span> <span class="n">WITSML_file</span><span class="p">)</span>
+<span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">blob</span><span class="o">.</span><span class="n">content</span><span class="p">,</span> <span class="s1">&#39;xml&#39;</span><span class="p">)</span>
+<span class="nb">set</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">tag</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">()])</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">{&#39;commonData&#39;,</span>
+<span class="err"> &#39;creationDate&#39;,</span>
+<span class="err"> &#39;curveDescription&#39;,</span>
+<span class="err"> &#39;dTimCreation&#39;,</span>
+<span class="err"> &#39;dTimLastChange&#39;,</span>
+<span class="err"> &#39;data&#39;,</span>
+<span class="err"> &#39;dataSource&#39;,</span>
+<span class="err"> &#39;direction&#39;,</span>
+<span class="err"> &#39;endIndex&#39;,</span>
+<span class="err"> &#39;indexCurve&#39;,</span>
+<span class="err"> &#39;indexType&#39;,</span>
+<span class="err"> &#39;log&#39;,</span>
+<span class="err"> &#39;logCurveInfo&#39;,</span>
+<span class="err"> &#39;logData&#39;,</span>
+<span class="err"> &#39;logs&#39;,</span>
+<span class="err"> &#39;maxIndex&#39;,</span>
+<span class="err"> &#39;minIndex&#39;,</span>
+<span class="err"> &#39;mnemonic&#39;,</span>
+<span class="err"> &#39;mnemonicList&#39;,</span>
+<span class="err"> &#39;name&#39;,</span>
+<span class="err"> &#39;nameWell&#39;,</span>
+<span class="err"> &#39;nameWellbore&#39;,</span>
+<span class="err"> &#39;pass&#39;,</span>
+<span class="err"> &#39;priv_dTimPriority&#39;,</span>
+<span class="err"> &#39;priv_dTimReceived&#39;,</span>
+<span class="err"> &#39;priv_ipLastChange&#39;,</span>
+<span class="err"> &#39;priv_ipOwner&#39;,</span>
+<span class="err"> &#39;priv_userLastChange&#39;,</span>
+<span class="err"> &#39;priv_userOwner&#39;,</span>
+<span class="err"> &#39;runNumber&#39;,</span>
+<span class="err"> &#39;serviceCompany&#39;,</span>
+<span class="err"> &#39;sourceName&#39;,</span>
+<span class="err"> &#39;startIndex&#39;,</span>
+<span class="err"> &#39;typeLogData&#39;,</span>
+<span class="err"> &#39;unit&#39;,</span>
+<span class="err"> &#39;unitList&#39;}</span>
+</pre></div>
+
+
+<p>If you recall, when we built our custom WITSML parser  we generally only utilized mnemonicList (for column names), unit (for units per column) and data (containing the log data). Clearly there are a large number of fields which were neglected. For the most part - and for the purposes of exploring the data, these three columns will suffice - however there can be a large number of reasons why including additional fields will enhance the exploration of the dataset. </p>
+<p>Below we will build the maven project from the hashmapinc repo and then utilize log files to convert witsml to csv enabling data science ingestion and workflows. Follow the instructions to build the maven project - also a decent idea to create the documentation. These are fairly simple operations given the provided instructions (and prerequisite installation of jave/maven/etc). After finishing the maven build there should be a java project with the following architecture: </p>
+<p align="center">
+  <img width="1000" height="400" src="/images/witsmlstructure.JPG">
+</p>
+
+<p>Clearly there are a large number of packages that can be used to manipulate WITSML data. Most of what we will do will be captured in the WitsmlMarshal.java file which enables serialization and deserialization of witsml data objects - exactly what we need in order to read in WITSML data and parse it correctly! There are a couple of example scripts on the HashMap git repo to transform a WITSML file into a csv. We will get started doing that here. Listed below is one such method to ceate a csv from a 1.3.1.1 witsml log object: </p>
+<p>public void testExportCSV1311(){
+    try {
+        //read in witsml data
+        String data = TestUtilities.getResourceAsString("log_with_data_1311.xml");
+        try {
+            //create the version transformer
+            WitsmlVersionTransformer transformer = new WitsmlVersionTransformer();
+            //convert to 1.4.1.1
+            String convertedData = transformer.convertVersion(data);
+            //deserialize the data
+            ObjLogs logs = WitsmlMarshal.deserialize(convertedData, ObjLogs.class);
+            //get the csv
+            String csv = LogDataHelper.getCSV(logs.getLog().get(0), true);
+        } catch (TransformerException e) {
+            e.printStackTrace();
+        }
+    } catch (IOException | JAXBException e) {
+        e.printStackTrace();
+    }
+}</p>
+<p>In order to get started we will create a new java project and import the compiled WISTMLOBJECTSLIBRARY into this project as a dependency so we can use the classes and methods contained. We've gone ahead and initialized an empty java project folder structure and added the dependency in the pom file: </p>
+<p align="center">
+  <img width="1000" height="400" src="/images/dependency.JPG">
+</p>
+
+<p>With the dependency, we can then import the associated classes/methods from the WitsmlObjectsLibrary and utlize it to read in and convert WITSML data objects. </p>
+<p>Using the sample scripts available at the github repo, we will create a Parser.java file inside our new project that uses the testExportCSV1311 method. Copied below is the code contained in the Parser.java file - placed in the src/main folder: </p>
+<div class="highlight"><pre><span></span><span class="kn">package</span> <span class="nn">com.olsonfactory</span><span class="p">;</span>
+
+<span class="kn">import</span> <span class="nn">java.io.IOException</span><span class="p">;</span>
+<span class="kn">import</span> <span class="nn">java.nio.file.Files</span><span class="p">;</span>
+<span class="kn">import</span> <span class="nn">java.nio.file.Paths</span><span class="p">;</span>
+<span class="kn">import</span> <span class="nn">java.io.FileWriter</span><span class="p">;</span>
+<span class="kn">import</span> <span class="nn">java.io.BufferedWriter</span><span class="p">;</span>
+
+<span class="kn">import</span> <span class="nn">javax.xml.bind.JAXBException</span><span class="p">;</span>
+<span class="kn">import</span> <span class="nn">javax.xml.transform.TransformerException</span><span class="p">;</span>
+
+<span class="kn">import</span> <span class="nn">com.hashmapinc.tempus.WitsmlObjects.Util.*</span><span class="p">;</span>
+<span class="kn">import</span> <span class="nn">com.hashmapinc.tempus.WitsmlObjects.Util.WitsmlMarshal</span><span class="p">;</span>
+<span class="kn">import</span> <span class="nn">com.hashmapinc.tempus.WitsmlObjects.Util.log.LogDataHelper</span><span class="p">;</span>
+<span class="kn">import</span> <span class="nn">com.hashmapinc.tempus.WitsmlObjects.v1411.ObjLogs</span><span class="p">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Parser</span> <span class="p">{</span>
+
+    <span class="kd">public</span> <span class="nf">Parser</span><span class="p">()</span> <span class="p">{</span>
+        <span class="c1">// No-op</span>
+    <span class="p">}</span>
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">testExportCSV1311</span><span class="p">(</span><span class="n">String</span> <span class="n">fileName</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">try</span> <span class="p">{</span>
+            <span class="c1">//read in witsml data</span>
+            <span class="n">String</span> <span class="n">data</span> <span class="o">=</span> <span class="n">getResourceAsString</span><span class="p">(</span><span class="n">fileName</span><span class="p">);</span>
+            <span class="k">try</span> <span class="p">{</span>
+                <span class="c1">//create the version transformer</span>
+                <span class="n">WitsmlVersionTransformer</span> <span class="n">transformer</span> <span class="o">=</span> <span class="k">new</span> <span class="n">WitsmlVersionTransformer</span><span class="p">();</span>
+                <span class="c1">//convert to 1.4.1.1</span>
+                <span class="n">String</span> <span class="n">convertedData</span> <span class="o">=</span> <span class="n">transformer</span><span class="p">.</span><span class="na">convertVersion</span><span class="p">(</span><span class="n">data</span><span class="p">);</span>
+                <span class="c1">//deserialize the data</span>
+                <span class="n">ObjLogs</span> <span class="n">logs</span> <span class="o">=</span> <span class="n">WitsmlMarshal</span><span class="p">.</span><span class="na">deserialize</span><span class="p">(</span><span class="n">convertedData</span><span class="p">,</span> <span class="n">ObjLogs</span><span class="p">.</span><span class="na">class</span><span class="p">);</span>
+                <span class="c1">//get the csv</span>
+                <span class="n">String</span> <span class="n">csv</span> <span class="o">=</span> <span class="n">LogDataHelper</span><span class="p">.</span><span class="na">getCSV</span><span class="p">(</span><span class="n">logs</span><span class="p">.</span><span class="na">getLog</span><span class="p">().</span><span class="na">get</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="kc">true</span><span class="p">);</span>
+                <span class="n">String</span> <span class="n">csvFileName</span> <span class="o">=</span> <span class="n">fileName</span><span class="p">.</span><span class="na">replace</span><span class="p">(</span><span class="s">&quot;xml&quot;</span><span class="p">,</span> <span class="s">&quot;csv&quot;</span><span class="p">);</span>
+                <span class="n">writeStringToFile</span><span class="p">(</span><span class="n">csv</span><span class="p">,</span> <span class="n">csvFileName</span><span class="p">);</span>
+            <span class="p">}</span> <span class="k">catch</span> <span class="p">(</span><span class="n">TransformerException</span> <span class="n">e</span><span class="p">)</span> <span class="p">{</span>
+                <span class="n">e</span><span class="p">.</span><span class="na">printStackTrace</span><span class="p">();</span>
+            <span class="p">}</span>
+        <span class="p">}</span> <span class="k">catch</span> <span class="p">(</span><span class="n">IOException</span> <span class="o">|</span> <span class="n">JAXBException</span> <span class="n">e</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">e</span><span class="p">.</span><span class="na">printStackTrace</span><span class="p">();</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">testExportCSV1411</span><span class="p">(</span><span class="n">String</span> <span class="n">fileName</span><span class="p">){</span>
+        <span class="k">try</span> <span class="p">{</span>
+            <span class="c1">//read in witsml data</span>
+            <span class="n">String</span> <span class="n">data</span> <span class="o">=</span> <span class="n">getResourceAsString</span><span class="p">(</span><span class="n">fileName</span><span class="p">);</span>
+            <span class="c1">//deserialize object</span>
+            <span class="n">ObjLogs</span> <span class="n">logs</span> <span class="o">=</span> <span class="n">WitsmlMarshal</span><span class="p">.</span><span class="na">deserialize</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">ObjLogs</span><span class="p">.</span><span class="na">class</span><span class="p">);</span>
+            <span class="c1">//get csv</span>
+            <span class="n">String</span> <span class="n">csv</span> <span class="o">=</span> <span class="n">LogDataHelper</span><span class="p">.</span><span class="na">getCSV</span><span class="p">(</span><span class="n">logs</span><span class="p">.</span><span class="na">getLog</span><span class="p">().</span><span class="na">get</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="kc">true</span><span class="p">);</span>
+            <span class="n">String</span> <span class="n">csvFileName</span> <span class="o">=</span> <span class="n">fileName</span><span class="p">.</span><span class="na">replace</span><span class="p">(</span><span class="s">&quot;xml&quot;</span><span class="p">,</span> <span class="s">&quot;csv&quot;</span><span class="p">);</span>
+            <span class="n">writeStringToFile</span><span class="p">(</span><span class="n">csv</span><span class="p">,</span> <span class="n">csvFileName</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="k">catch</span> <span class="p">(</span><span class="n">IOException</span> <span class="o">|</span> <span class="n">JAXBException</span> <span class="n">e</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">e</span><span class="p">.</span><span class="na">printStackTrace</span><span class="p">();</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="kd">public</span> <span class="n">String</span> <span class="nf">getResourceAsString</span><span class="p">(</span><span class="n">String</span> <span class="n">resourceName</span><span class="p">)</span> <span class="kd">throws</span> <span class="n">IOException</span> <span class="p">{</span>
+        <span class="n">String</span> <span class="n">path</span> <span class="o">=</span> <span class="s">&quot;src/main/resources/&quot;</span> <span class="o">+</span> <span class="n">resourceName</span><span class="p">;</span>
+        <span class="k">return</span> <span class="k">new</span> <span class="n">String</span><span class="p">(</span><span class="n">Files</span><span class="p">.</span><span class="na">readAllBytes</span><span class="p">(</span><span class="n">Paths</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="n">path</span><span class="p">)));</span>
+    <span class="p">}</span>
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">writeStringToFile</span><span class="p">(</span><span class="n">String</span> <span class="n">csv</span><span class="p">,</span> <span class="n">String</span> <span class="n">fileName</span><span class="p">)</span> <span class="kd">throws</span> <span class="n">IOException</span> <span class="p">{</span>
+        <span class="n">String</span> <span class="n">path</span> <span class="o">=</span> <span class="s">&quot;target/&quot;</span> <span class="o">+</span> <span class="n">fileName</span><span class="p">;</span>
+        <span class="n">BufferedWriter</span> <span class="n">writer</span> <span class="o">=</span> <span class="k">new</span> <span class="n">BufferedWriter</span><span class="p">(</span><span class="k">new</span> <span class="n">FileWriter</span><span class="p">(</span><span class="n">path</span><span class="p">));</span>
+        <span class="n">writer</span><span class="p">.</span><span class="na">write</span><span class="p">(</span><span class="n">csv</span><span class="p">);</span>
+        <span class="n">writer</span><span class="p">.</span><span class="na">close</span><span class="p">();</span>
+    <span class="p">}</span>
+
+<span class="p">}</span>
+</pre></div>
+
+
+<p>This defines the methods we will use to convert our file. We then create another file which will call these methods on the associated file. </p>
+<div class="highlight"><pre><span></span><span class="kn">package</span> <span class="nn">com.olson</span><span class="p">;</span>
+
+<span class="c1">//import the parser class we previously defined</span>
+<span class="kn">import</span> <span class="nn">com.olson.Parser</span><span class="p">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">App</span> <span class="p">{</span>
+
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="p">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">String</span> <span class="n">TEST_FILE</span> <span class="o">=</span> <span class="n">args</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span><span class="p">;</span>
+        <span class="n">Parser</span> <span class="n">parser</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Parser</span><span class="p">();</span>
+        <span class="n">parser</span><span class="p">.</span><span class="na">testExportCSV1411</span><span class="p">(</span><span class="n">TEST_FILE</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p>In order to call this method, we would open a terminal, navigate to the project folder and run the following command: </p>
+<p>java -jar target/witsmlparser-1.0-jar-with-dependencies.jar 00001.xml</p>
+<p>The above command will read in the 00001.xml file (from weeks 2 &amp; 3). It is presumed in this example that 00001.xml file is placed in the resources folder of the java project architecture. Calling this command places a csv file in the target folder of the project. We can then read this csv file into a pandas dataframe: </p>
+<div class="highlight"><pre><span></span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;target</span><span class="se">\\</span><span class="s1">00001.csv&#39;</span><span class="p">)</span>
+<span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Time</th>
+      <th>CEMTEMPOUT</th>
+      <th>CEMSTAGE</th>
+      <th>STRATE2</th>
+      <th>HKLD</th>
+      <th>CEMPUMPPR</th>
+      <th>STROKESUM</th>
+      <th>CEMFLOWINC</th>
+      <th>STRATE3</th>
+      <th>PUMP</th>
+      <th>...</th>
+      <th>CEMWTIN</th>
+      <th>STRATE1</th>
+      <th>CEMWTOUT</th>
+      <th>CEMFLOWOUT</th>
+      <th>EditFlag</th>
+      <th>CEMIVOLPUMP</th>
+      <th>CEMTVOLPUMP</th>
+      <th>CEMTEMPIN</th>
+      <th>CEMCVOLPUMP</th>
+      <th>CEMFLOWIN</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>unitless</td>
+      <td>K</td>
+      <td>unitless</td>
+      <td>Hz</td>
+      <td>N</td>
+      <td>Pa</td>
+      <td>unitless</td>
+      <td>m3/s</td>
+      <td>Hz</td>
+      <td>Pa</td>
+      <td>...</td>
+      <td>kg/m3</td>
+      <td>Hz</td>
+      <td>kg/m3</td>
+      <td>m3/s</td>
+      <td>unitless</td>
+      <td>m3</td>
+      <td>m3</td>
+      <td>K</td>
+      <td>m3</td>
+      <td>m3/s</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2016-09-30T10:04:00.000Z</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>128066</td>
+      <td>...</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2016-09-30T10:04:10.000Z</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>392945.29</td>
+      <td>118088.1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>124673.01</td>
+      <td>...</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>2016-09-30T10:04:20.000Z</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>654267.78</td>
+      <td>197140.71</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>121374.61</td>
+      <td>...</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>2016-09-30T10:04:30.000Z</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>654267.79</td>
+      <td>196218.3</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>122941.55</td>
+      <td>...</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+<p>5 rows × 28 columns</p>
+</div>
+
+<p>Here we can see the file is correctly parsed, the first row (index 0) is a unit row, so it would be better to read this in differently. One method would be to include the first and second row as the header - we will also read in the time data as index and convert to timestamp format: </p>
+<div class="highlight"><pre><span></span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;target</span><span class="se">\\</span><span class="s1">00001.csv&#39;</span><span class="p">,</span> <span class="n">header</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">df</span><span class="p">[(</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="s1">&#39;unitless&#39;</span><span class="p">)]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="p">[(</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="s1">&#39;unitless&#39;</span><span class="p">)])</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">set_index</span><span class="p">((</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="s1">&#39;unitless&#39;</span><span class="p">))</span>
+<span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead tr th {
+        text-align: left;
+    }
+
+    .dataframe thead tr:last-of-type th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr>
+      <th></th>
+      <th>CEMTEMPOUT</th>
+      <th>CEMSTAGE</th>
+      <th>STRATE2</th>
+      <th>HKLD</th>
+      <th>CEMPUMPPR</th>
+      <th>STROKESUM</th>
+      <th>CEMFLOWINC</th>
+      <th>STRATE3</th>
+      <th>PUMP</th>
+      <th>CEMCUMRETURNS</th>
+      <th>...</th>
+      <th>CEMWTIN</th>
+      <th>STRATE1</th>
+      <th>CEMWTOUT</th>
+      <th>CEMFLOWOUT</th>
+      <th>EditFlag</th>
+      <th>CEMIVOLPUMP</th>
+      <th>CEMTVOLPUMP</th>
+      <th>CEMTEMPIN</th>
+      <th>CEMCVOLPUMP</th>
+      <th>CEMFLOWIN</th>
+    </tr>
+    <tr>
+      <th></th>
+      <th>K</th>
+      <th>unitless</th>
+      <th>Hz</th>
+      <th>N</th>
+      <th>Pa</th>
+      <th>unitless</th>
+      <th>m3/s</th>
+      <th>Hz</th>
+      <th>Pa</th>
+      <th>m3</th>
+      <th>...</th>
+      <th>kg/m3</th>
+      <th>Hz</th>
+      <th>kg/m3</th>
+      <th>m3/s</th>
+      <th>unitless</th>
+      <th>m3</th>
+      <th>m3</th>
+      <th>K</th>
+      <th>m3</th>
+      <th>m3/s</th>
+    </tr>
+    <tr>
+      <th>(Time, unitless)</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>2016-09-30 10:04:00+00:00</th>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>128066.00</td>
+      <td>0</td>
+      <td>...</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>2016-09-30 10:04:10+00:00</th>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>392945.29</td>
+      <td>118088.10</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>124673.01</td>
+      <td>0</td>
+      <td>...</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>2016-09-30 10:04:20+00:00</th>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>654267.78</td>
+      <td>197140.71</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>121374.61</td>
+      <td>0</td>
+      <td>...</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>2016-09-30 10:04:30+00:00</th>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>654267.79</td>
+      <td>196218.30</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>122941.55</td>
+      <td>0</td>
+      <td>...</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>2016-09-30 10:04:40+00:00</th>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>658498.46</td>
+      <td>196340.41</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>124673.01</td>
+      <td>0</td>
+      <td>...</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+  </tbody>
+</table>
+<p>5 rows × 27 columns</p>
+</div>
+
+<p>Now we still retain the units - so that we can correct them if necessary - however all of the dataframe contains the data from the log file. We can then generate simple plots as we have done before to explore the data: </p>
+<div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">15</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">lineplot</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;PUMP&#39;</span><span class="p">,</span> <span class="s1">&#39;Pa&#39;</span><span class="p">),</span> <span class="n">data</span> <span class="o">=</span> <span class="n">df</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+
+
+<p align="center">
+  <img width="1000" height="400" src="/images/output_14_10.JPG">
+</p>
+
+<p>The file that we converted appears to be related to a cement job, whre the pump variable is the pump pressure (unit Pa). As can be seen - the pump presure was zero for most of the job, and then peaks presumably as the cement stage is pumped. </p>
+<p>So this is great! We now have a way to more reliably convert WITSML data into csv which then we can ingest into our data science routines and practices. What would make the process better however - would be to conduct all operations in python, rather than having to manually run the java command on a specific witsml file. </p>
+<p>Listed below, is a way to call the java process from within python, we can then automate this with a loop for all of the discovered wistml/xml file types when exploring the data blob. Alternatively, we can edit the java code to read in a file (text file) where each line is the directory for a new file to be read. One additional method would be to incorporate the string as read via blob storage and feed this directly into the java call - rather than having to download the witsml file. </p>
+<p>We will start on the first. We can call java processes using the subprocess library. The procedure is relativley straight forward and mimics the terminal call we used earlier: </p>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+
+<span class="n">env</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">)</span>
+<span class="n">filepath</span> <span class="o">=</span> <span class="s1">&#39;WitsmlParser</span><span class="se">\\</span><span class="s1">witsmlparser</span><span class="se">\\</span><span class="s1">&#39;</span>
+<span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+<span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">([</span><span class="s1">&#39;java&#39;</span><span class="p">,</span> <span class="s1">&#39;-jar&#39;</span><span class="p">,</span><span class="s1">&#39;target</span><span class="se">\\</span><span class="s1">witsmlparser-1.0-jar-with-dependencies.jar&#39;</span><span class="p">,</span> <span class="s1">&#39;00001.xml&#39;</span><span class="p">],</span> <span class="n">env</span> <span class="o">=</span> <span class="n">env</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">0</span>
+</pre></div>
+
+
+<p>Running this code uses the filename as the last argument and places the csv in the target folder. Essentially we can loop over this subprocess call to convert all wistml files into a csv. </p>
+<p>In this weeks example we have utilized the WitsmlObjectLibrary written in java and available here: https://github.com/hashmapinc/WitsmlObjectsLibrary to read in witsml data and store it as a csv. This enables us to more reliably parse the witsml data files we have and convert them into a format useable for data science routines!</p>
+<p>With this automated, we can now perform a deeper dive into the EDA, looking at multiple wells and trying to understand the Volve field - rather than a specific well (or log) within the field. </p></p>
+        </div>
+    </div>
+
+<div class="fh5co-narrow-content">
+<div class="animate-box" data-animate-effect="fadeInLeft">
+    <h2><!-- <i class="icon-speech-bubble"></i>  -->Comments</h2>
+</div>
+<div class="animate-box" data-animate-effect="fadeInLeft">
+    <div id="disqus_thread"></div>
+</div>
+
+<script>
+var disqus_config = function () { 
+  this.language = "english";
+};
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+s.src = 'https://frombitumentobinary.disqus.com/embed.js';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+<noscript><a href="https://disqus.com/?ref_noscript">Please enable JavaScript to view the comments powered by Disqus.</a></noscript>
+<div class="fh5co-footer">
+    <p><small>&copy; 2016 Blend Free HTML5. All Rights Reserved.</span> <span>Designed by <a href="http://freehtml5.co/" target="_blank">FreeHTML5.co</a></span>
+    <br /><span>Pelican Theme by: <a href="https://github.com/claudio-walser/pelican-fh5co-marble" target="_blank">Claudio Walser</a></span></small></p>
+
+</div>                
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="./theme/js/jquery.min.js"></script>
+    <!-- jQuery Easing -->
+    <script src="./theme/js/jquery.easing.1.3.js"></script>
+    <!-- Bootstrap -->
+    <script src="./theme/js/bootstrap.min.js"></script>
+    <!-- Waypoints -->
+    <script src="./theme/js/jquery.waypoints.min.js"></script>
+    <!-- Flexslider -->
+    <script src="./theme/js/jquery.flexslider-min.js"></script>
+
+
+    <!-- MAIN JS -->
+    <script src="./theme/js/main.js"></script>
+    </body>
+</html>
